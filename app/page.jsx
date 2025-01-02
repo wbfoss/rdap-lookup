@@ -158,7 +158,7 @@ export default function HomePage() {
     <main className="container mx-auto p-4 max-w-xl">
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle className="text-xl font-bold">RDAP Lookup</CardTitle>
+          <CardTitle className="text-xl font-bold">RDAP Lookup Tool v1.0</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">

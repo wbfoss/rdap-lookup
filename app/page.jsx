@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+
+// shadcn/ui components
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,7 +16,8 @@ import {
 } from '@/components/ui/select';
 
 /**
- * Display RDAP data in a structured way. You can customize or expand this.
+ * Example structured data display for RDAP.
+ * Customize as needed.
  */
 function StructuredRdapData({ data }) {
   const {
@@ -76,7 +79,7 @@ function StructuredRdapData({ data }) {
         </table>
       </div>
 
-      {/* Entities (contacts, owners, etc.) */}
+      {/* Entities */}
       {Array.isArray(entities) && entities.length > 0 && (
         <div>
           <h4 className="text-md font-semibold mb-2">Entities</h4>
@@ -91,7 +94,7 @@ function StructuredRdapData({ data }) {
         </div>
       )}
 
-      {/* Events (creation, updated, etc.) */}
+      {/* Events */}
       {Array.isArray(events) && events.length > 0 && (
         <div>
           <h4 className="text-md font-semibold mb-2">Events</h4>
@@ -109,6 +112,7 @@ function StructuredRdapData({ data }) {
 }
 
 export default function HomePage() {
+  // Make "domain" the default type
   const [type, setType] = useState('domain');
   const [objectValue, setObjectValue] = useState('');
   const [result, setResult] = useState(null);
@@ -154,7 +158,7 @@ export default function HomePage() {
     <main className="container mx-auto p-4 max-w-xl">
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle className="text-xl font-bold">RDAP Lookup Tool v1.0</CardTitle>
+          <CardTitle className="text-xl font-bold">RDAP Lookup</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -178,7 +182,10 @@ export default function HomePage() {
 
             {/* RDAP Object Input */}
             <div>
-              <Label htmlFor="objectValue" className="mb-2 block text-sm font-medium">
+              <Label
+                htmlFor="objectValue"
+                className="mb-2 block text-sm font-medium"
+              >
                 Object Identifier
               </Label>
               <Input
@@ -241,7 +248,11 @@ export default function HomePage() {
             ) : (
               <StructuredRdapData data={result} />
             )}
-            {/* Footer Section */}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Footer Section */}
       <div className="mt-6 text-xs text-gray-600">
         Special Thanks to{' '}
         <a

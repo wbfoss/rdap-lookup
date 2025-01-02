@@ -1,3 +1,20 @@
+
+
+![GitHub stars](https://img.shields.io/github/stars/alokemajumder/rdap-lookup?style=social)
+![GitHub forks](https://img.shields.io/github/forks/alokemajumder/rdap-lookup?style=social)
+![GitHub issues](https://img.shields.io/github/issues/alokemajumder/rdap-lookup)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/alokemajumder/rdap-lookup)
+![GitHub](https://img.shields.io/github/license/alokemajumder/rdap-lookup)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/alokemajumder/rdap-lookup)
+![GitHub contributors](https://img.shields.io/github/contributors/alokemajumder/rdap-lookup)
+![GitHub last commit](https://img.shields.io/github/last-commit/alokemajumder/rdap-lookup)
+![GitHub top language](https://img.shields.io/github/languages/top/alokemajumder/rdap-lookup)
+![Dependencies](https://img.shields.io/librariesio/github/alokemajumder/rdap-lookup)
+![Code size](https://img.shields.io/github/languages/code-size/alokemajumder/rdap-lookup)
+![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.png?v=103)
+
+
+
 # RDAP Lookup (Next.js App Router + shadcn/ui)
 
 A production-level **RDAP Lookup** tool built using **Next.js App Router**, **Tailwind CSS**, and **shadcn/ui** components.  

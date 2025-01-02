@@ -109,7 +109,7 @@ function StructuredRdapData({ data }) {
 }
 
 export default function HomePage() {
-  const [type, setType] = useState('');
+  const [type, setType] = useState('domain');
   const [objectValue, setObjectValue] = useState('');
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
@@ -143,7 +143,7 @@ export default function HomePage() {
   }
 
   function resetForm() {
-    setType('');
+    setType('domain'); // reset to domain
     setObjectValue('');
     setResult(null);
     setError(null);
@@ -154,7 +154,7 @@ export default function HomePage() {
     <main className="container mx-auto p-4 max-w-xl">
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle className="text-xl font-bold">RDAP Lookup</CardTitle>
+          <CardTitle className="text-xl font-bold">RDAP Lookup Tool v1.0</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -241,9 +241,36 @@ export default function HomePage() {
             ) : (
               <StructuredRdapData data={result} />
             )}
-          </CardContent>
-        </Card>
-      )}
+            {/* Footer Section */}
+      <div className="mt-6 text-xs text-gray-600">
+        Special Thanks to{' '}
+        <a
+          href="https://rdap.org"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline"
+        >
+          rdap.org
+        </a>{' '}
+        and{' '}
+        <a
+          href="https://iana.org"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline"
+        >
+          iana.org
+        </a>{' '}
+        | Hosted on vercle.com | This is an open-source project |{' '}
+        <a
+          href="https://github.com/alokemajumder/rdap-lookup"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline"
+        >
+          Contribute at GitHub
+        </a>
+      </div>
     </main>
   );
 }

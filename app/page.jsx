@@ -268,13 +268,13 @@ export default function HomePage() {
     className="underline"
   >
     iana.org
-  </a> | <a
-    href="https://vercel.components"
+  </a> | Hosted on <a
+    href="https://vercel.com"
     target="_blank"
     rel="noopener noreferrer"
     className="underline"
   
-  > Hosted on vercel.com </a> | This is an open-source project | <a
+  > vercel.com </a> | This is an open-source project | <a
     href="https://github.com/alokemajumder/rdap-lookup"
     target="_blank"
     rel="noopener noreferrer"

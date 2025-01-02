@@ -1,6 +1,6 @@
 
 
-![GitHub stars](https://img.shields.io/github/stars/alokemajumder/Cc?style=social)
+![GitHub stars](https://img.shields.io/github/stars/alokemajumder/rdap-lookup?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/alokemajumder/rdap-lookup?style=social)
 ![GitHub issues](https://img.shields.io/github/issues/alokemajumder/rdap-lookup)
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/alokemajumder/rdap-lookup)

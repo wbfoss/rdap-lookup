@@ -52,7 +52,7 @@ Overall, RDAP is **more robust and future-proof** for domain/IP registration dat
 1.  **Clone or Download** this repository:
     
     
-    `git clone https://github.com/<your-repo-url>/rdap-lookup.git
+    `git clone https://github.com/alokemajumder/rdap-lookup.git
     cd rdap-lookup` 
     
 2.  **Install Dependencies**:

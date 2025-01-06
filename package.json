@@ -12,7 +12,7 @@
     "react": "18.x",
     "react-dom": "18.x",
     "@radix-ui/react-select": "^1.0.0",
-    "class-variance-authority": "^0.5.1"
+    "class-variance-authority": "^0.7.1"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.14",

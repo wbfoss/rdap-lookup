@@ -17,3 +17,5 @@ out/
 # OS
 .DS_Store
 *.swp
+
+.env.local

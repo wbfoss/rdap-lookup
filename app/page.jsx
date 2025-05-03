@@ -1,19 +1,20 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
+import HCaptcha from "@hcaptcha/react-hcaptcha";
 
 // shadcn/ui components
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
   SelectItem,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 
 /**
  * Example structured data display for RDAP.
@@ -72,7 +73,7 @@ function StructuredRdapData({ data }) {
             {Array.isArray(status) && status.length > 0 && (
               <tr>
                 <td className="p-2 font-medium bg-gray-50">Status</td>
-                <td className="p-2">{status.join(', ')}</td>
+                <td className="p-2">{status.join(", ")}</td>
               </tr>
             )}
           </tbody>
@@ -86,8 +87,8 @@ function StructuredRdapData({ data }) {
           <ul className="list-disc pl-5 space-y-1">
             {entities.map((entity, idx) => (
               <li key={idx}>
-                {entity.handle || 'No entity handle'}
-                {entity.roles && ` (roles: ${entity.roles.join(', ')})`}
+                {entity.handle || "No entity handle"}
+                {entity.roles && ` (roles: ${entity.roles.join(", ")})`}
               </li>
             ))}
           </ul>
@@ -112,31 +113,41 @@ function StructuredRdapData({ data }) {
 }
 
 export default function HomePage() {
-  // Make "domain" the default type
-  const [type, setType] = useState('domain');
-  const [objectValue, setObjectValue] = useState('');
+  const [type, setType] = useState("domain");
+  const [objectValue, setObjectValue] = useState("");
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showJson, setShowJson] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState("");
 
   async function handleSubmit(e) {
     e.preventDefault();
+
+    if (!captchaToken) {
+      setError("Please complete the captcha verification.");
+      return;
+    }
+
     setResult(null);
     setError(null);
     setIsLoading(true);
     setShowJson(false);
 
     try {
-      const res = await fetch('/api/lookup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, object: objectValue }),
+      const res = await fetch("/api/lookup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type,
+          object: objectValue,
+          captchaToken,
+        }),
       });
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.message || 'Error fetching RDAP data.');
+        throw new Error(data.message || "Error fetching RDAP data.");
       }
       setResult(data);
     } catch (err) {
@@ -147,18 +158,28 @@ export default function HomePage() {
   }
 
   function resetForm() {
-    setType('domain'); // reset to domain
-    setObjectValue('');
+    setType("domain");
+    setObjectValue("");
     setResult(null);
     setError(null);
     setShowJson(false);
+    setCaptchaToken("");
+    // Reset hCaptcha if it exists
+    const hcaptchaElement = document.querySelector(
+      "iframe[data-hcaptcha-widget-id]"
+    );
+    if (hcaptchaElement) {
+      hcaptchaElement.contentWindow.postMessage('{"event":"reset"}', "*");
+    }
   }
 
   return (
     <main className="container mx-auto p-4 max-w-xl">
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle className="text-xl font-bold">RDAP Lookup Tool v1.0</CardTitle>
+          <CardTitle className="text-xl font-bold">
+            RDAP Lookup Tool v1.0
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -198,13 +219,22 @@ export default function HomePage() {
               />
             </div>
 
+            {/* hCaptcha */}
+            <div className="flex justify-center">
+              <HCaptcha
+                sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY}
+                onVerify={(token) => setCaptchaToken(token)}
+                onExpire={() => setCaptchaToken("")}
+              />
+            </div>
+
             <div className="flex items-center gap-2">
               <Button
                 variant="default"
                 type="submit"
-                disabled={!type || !objectValue || isLoading}
+                disabled={!type || !objectValue || isLoading || !captchaToken}
               >
-                {isLoading ? 'Checking...' : 'Lookup'}
+                {isLoading ? "Checking..." : "Lookup"}
               </Button>
               {result && (
                 <Button variant="outline" type="button" onClick={resetForm}>
@@ -236,7 +266,7 @@ export default function HomePage() {
                 type="button"
                 onClick={() => setShowJson((prev) => !prev)}
               >
-                {showJson ? 'Hide JSON' : 'Show JSON'}
+                {showJson ? "Hide JSON" : "Show JSON"}
               </Button>
             </CardTitle>
           </CardHeader>
@@ -252,37 +282,46 @@ export default function HomePage() {
         </Card>
       )}
 
-     {/* Footer Section */}
-<div className="mt-6 text-xs text-gray-600">
-  Special Thanks to <a
-    href="https://rdap.org"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="underline"
-  >
-    rdap.org
-  </a> and <a
-    href="https://iana.org"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="underline"
-  >
-    iana.org
-  </a> | Hosted on <a
-    href="https://vercel.com"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="underline"
-  
-  > vercel.com </a> | This is an open-source project | <a
-    href="https://github.com/alokemajumder/rdap-lookup"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="underline"
-  >
-    Contribute at GitHub
-  </a>
-</div>
+      {/* Footer Section */}
+      <div className="mt-6 text-xs text-gray-600">
+        Special Thanks to{" "}
+        <a
+          href="https://rdap.org"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline"
+        >
+          rdap.org
+        </a>{" "}
+        and{" "}
+        <a
+          href="https://iana.org"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline"
+        >
+          iana.org
+        </a>{" "}
+        | Hosted on{" "}
+        <a
+          href="https://vercel.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline"
+        >
+          {" "}
+          vercel.com{" "}
+        </a>{" "}
+        | This is an open-source project |{" "}
+        <a
+          href="https://github.com/alokemajumder/rdap-lookup"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline"
+        >
+          Contribute at GitHub
+        </a>
+      </div>
     </main>
   );
 }

@@ -224,6 +224,12 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showJson, setShowJson] = useState(false);
   const [captchaToken, setCaptchaToken] = useState("");
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+    document.documentElement.classList.toggle("dark");
+  };
 
   function validateInput(type, value) {
     if (!value) return "Object identifier is required.";
@@ -323,8 +329,11 @@ export default function HomePage() {
     <main className="container mx-auto p-4 max-w-xl">
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle className="text-xl font-bold">
-            RDAP Lookup Tool v1.0
+          <CardTitle className="text-xl font-bold flex justify-between items-center">
+            <span>RDAP Lookup Tool v1.0</span>
+            <Button variant="outline" onClick={toggleDarkMode}>
+              {isDarkMode ? "Light Mode" : "Dark Mode"}
+            </Button>
           </CardTitle>
         </CardHeader>
         <CardContent>

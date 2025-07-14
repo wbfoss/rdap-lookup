@@ -8,11 +8,12 @@
     "start": "next start"
   },
   "dependencies": {
+    "@hcaptcha/react-hcaptcha": "^1.12.0",
+    "@radix-ui/react-select": "^1.0.0",
+    "class-variance-authority": "^0.7.1",
     "next": "14.2.30",
     "react": "18.x",
-    "react-dom": "18.x",
-    "@radix-ui/react-select": "^1.0.0",
-    "class-variance-authority": "^0.7.1"
+    "react-dom": "18.x"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.14",

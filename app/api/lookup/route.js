@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import dns from "dns";
+import tls from "tls";
 
 // In-memory store for rate limiting:
 const rateLimitStore = {};
@@ -24,29 +26,29 @@ async function verifyHCaptcha(token) {
 }
 
 /**
- * Enforce:
- *  - max 100 queries per IP
- *  - at least 15 seconds between queries
+ * Enforce rate limiting based on environment variables.
  */
 function checkRateLimit(ip) {
   const now = Date.now();
   const userEntry = rateLimitStore[ip] || { count: 0, lastRequest: 0 };
 
+  const maxQueries = parseInt(process.env.RDAP_LOOKUP_MAX_QUERIES, 10) || 100;
+  const rateLimitSeconds = parseInt(process.env.RDAP_LOOKUP_RATE_LIMIT_SECONDS, 10) || 15;
+
   // Exceed total queries?
-  if (userEntry.count >= 100) {
+  if (userEntry.count >= maxQueries) {
     return {
       allowed: false,
-      reason:
-        "You have reached the maximum of 100 queries for your IP address.",
+      reason: `You have reached the maximum of ${maxQueries} queries for your IP address.`,
     };
   }
 
   // Too frequent?
   const timeSinceLastRequest = now - userEntry.lastRequest;
-  if (timeSinceLastRequest < 15 * 1000) {
+  if (timeSinceLastRequest < rateLimitSeconds * 1000) {
     return {
       allowed: false,
-      reason: "Please wait at least 15 seconds before making another query.",
+      reason: `Please wait at least ${rateLimitSeconds} seconds before making another query.`,
     };
   }
 
@@ -74,7 +76,7 @@ export async function POST(request) {
       return NextResponse.json({ message: rateCheck.reason }, { status: 429 });
     }
 
-    const { type, object, captchaToken } = await request.json();
+    const { type, object, dkimSelector, captchaToken } = await request.json();
 
     // Validate required fields
     if (!type || !object) {
@@ -113,7 +115,7 @@ export async function POST(request) {
         if (!fallbackResponse.ok) {
           return NextResponse.json(
             {
-              message: `Unable to fetch RDAP data for ${object}. Fallback also failed: ${fallbackResponse.statusText}`,
+              message: `RDAP lookup failed for ${object}. The primary service and the IANA fallback both failed. Please check the domain and try again.`,
             },
             { status: fallbackResponse.status }
           );
@@ -126,7 +128,7 @@ export async function POST(request) {
         // No fallback for IP, autnum, entity
         return NextResponse.json(
           {
-            message: `Unable to fetch RDAP data for ${type}/${object}: ${response.statusText}`,
+            message: `RDAP lookup failed for ${type}/${object}. Please check the identifier and try again.`,
           },
           { status: response.status }
         );
@@ -135,6 +137,49 @@ export async function POST(request) {
 
     // If primary request succeeded
     const data = await response.json();
+
+    if (type === 'domain') {
+      try {
+        const dnsLookups = [
+          dns.promises.resolveTxt(`_spf.${object}`),
+          dns.promises.resolveTxt(`_dmarc.${object}`),
+        ];
+
+        if (dkimSelector) {
+          dnsLookups.push(dns.promises.resolveTxt(`${dkimSelector}._domainkey.${object}`));
+        }
+
+        const [spf, dmarc, dkim] = await Promise.allSettled(dnsLookups);
+
+        data.emailSecurity = {
+          spf: spf.status === 'fulfilled' ? spf.value.join(' ') : 'Not found',
+          dmarc: dmarc.status === 'fulfilled' ? dmarc.value.join(' ') : 'Not found',
+          dkim: dkimSelector ? (dkim.status === 'fulfilled' ? dkim.value.join(' ') : 'Not found') : 'Not looked up',
+        };
+      } catch (dnsError) {
+        // Ignore DNS errors if records don't exist
+        data.emailSecurity = {
+          spf: 'Not found',
+          dmarc: 'Not found',
+          dkim: dkimSelector ? 'Not found' : 'Not looked up',
+        };
+      }
+
+      try {
+        const certificate = await getCertificate(object);
+        data.ssl = certificate;
+      } catch (sslError) {
+        data.ssl = { error: sslError.message };
+      }
+    } else if (type === 'ip') {
+      try {
+        const rblResults = await checkRbls(object);
+        data.rbl = rblResults;
+      } catch (rblError) {
+        data.rbl = { error: rblError.message };
+      }
+    }
+
     updateRateLimit(ip);
     return NextResponse.json(data, { status: 200 });
   } catch (error) {
@@ -143,4 +188,77 @@ export async function POST(request) {
       { status: 500 }
     );
   }
+}
+
+function getCertificate(domain) {
+  return new Promise((resolve, reject) => {
+    const options = {
+      host: domain,
+      port: 443,
+      rejectUnauthorized: false, // Allow self-signed certificates
+    };
+
+    const socket = tls.connect(options, () => {
+      const certificate = socket.getPeerCertificate();
+      socket.end();
+      if (Object.keys(certificate).length > 0) {
+        resolve({
+          subject: certificate.subject,
+          issuer: certificate.issuer,
+          valid_from: certificate.valid_from,
+          valid_to: certificate.valid_to,
+          fingerprint: certificate.fingerprint,
+        });
+      } else {
+        reject(new Error("No certificate found."));
+      }
+    });
+
+    socket.on("error", (error) => {
+      reject(error);
+    });
+
+    socket.on("timeout", () => {
+      socket.destroy();
+      reject(new Error("Connection timed out."));
+    });
+
+    socket.setTimeout(5000); // 5 second timeout
+  });
+}
+
+// RBL providers to check against
+const RBL_PROVIDERS = [
+  "zen.spamhaus.org",
+  "b.barracudacentral.org",
+  "bl.spamcop.net",
+];
+
+/**
+ * Checks an IP address against a list of RBLs.
+ * @param {string} ip The IP address to check.
+ * @returns {Promise<Object>} A promise that resolves to an object with RBL results.
+ */
+async function checkRbls(ip) {
+  const reversedIp = ip.split(".").reverse().join(".");
+  const results = {};
+
+  const checks = RBL_PROVIDERS.map(async (provider) => {
+    try {
+      const address = `${reversedIp}.${provider}`;
+      await dns.promises.resolve(address, "A");
+      results[provider] = { status: "Listed" };
+    } catch (error) {
+      // NXDOMAIN (not found) is the expected error for a non-listed IP.
+      if (error.code === "ENOTFOUND" || error.code === "ENODATA" || error.code === "dns.NODATA" || error.code === "dns.NOTFOUND") {
+        results[provider] = { status: "Not Listed" };
+      } else {
+        // For other errors (e.g., timeout), mark as an error.
+        results[provider] = { status: "Error" };
+      }
+    }
+  });
+
+  await Promise.all(checks);
+  return results;
 }

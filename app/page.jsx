@@ -17,8 +17,7 @@ import {
 } from "@/components/ui/select";
 
 /**
- * Example structured data display for RDAP.
- * Customize as needed.
+ * Displays structured RDAP data in a comprehensive, user-friendly format.
  */
 function StructuredRdapData({ data }) {
   const {
@@ -30,82 +29,186 @@ function StructuredRdapData({ data }) {
     entities,
     events,
     status,
+    nameservers,
+    secureDNS,
+    emailSecurity,
+    ssl,
+    rbl,
   } = data;
 
+  // Helper to render a table row
+  const renderRow = (label, value) =>
+    value && (
+      <tr>
+        <td className="p-2 font-medium bg-gray-50 w-1/3">{label}</td>
+        <td className="p-2">{value}</td>
+      </tr>
+    );
+
+  // Helper to format dates
+  const formatDate = (dateString) =>
+    dateString ? new Date(dateString).toLocaleString() : "N/A";
+
   return (
-    <div className="space-y-4">
-      {/* Basic Info Table */}
-      <div className="overflow-auto">
-        <table className="w-full border border-gray-200 text-sm">
-          <tbody>
-            {objectClassName && (
-              <tr>
-                <td className="p-2 font-medium bg-gray-50 w-1/3">
-                  Object Class
-                </td>
-                <td className="p-2">{objectClassName}</td>
-              </tr>
-            )}
-            {handle && (
-              <tr>
-                <td className="p-2 font-medium bg-gray-50">Handle</td>
-                <td className="p-2">{handle}</td>
-              </tr>
-            )}
-            {ldhName && (
-              <tr>
-                <td className="p-2 font-medium bg-gray-50">LDH Name</td>
-                <td className="p-2">{ldhName}</td>
-              </tr>
-            )}
-            {startAddress && (
-              <tr>
-                <td className="p-2 font-medium bg-gray-50">Start Address</td>
-                <td className="p-2">{startAddress}</td>
-              </tr>
-            )}
-            {endAddress && (
-              <tr>
-                <td className="p-2 font-medium bg-gray-50">End Address</td>
-                <td className="p-2">{endAddress}</td>
-              </tr>
-            )}
-            {Array.isArray(status) && status.length > 0 && (
-              <tr>
-                <td className="p-2 font-medium bg-gray-50">Status</td>
-                <td className="p-2">{status.join(", ")}</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+    <div className="space-y-6">
+      {/* General Information */}
+      <div>
+        <h4 className="text-md font-semibold mb-2">General Information</h4>
+        <div className="overflow-auto">
+          <table className="w-full border border-gray-200 text-sm">
+            <tbody>
+              {renderRow("Object Class", objectClassName)}
+              {renderRow("Handle", handle)}
+              {renderRow("Domain Name (LDH)", ldhName)}
+              {renderRow("Start Address", startAddress)}
+              {renderRow("End Address", endAddress)}
+              {renderRow("Status", status?.join(", "))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      {/* Entities */}
+      {/* Important Dates */}
+      {Array.isArray(events) && events.length > 0 && (
+        <div>
+          <h4 className="text-md font-semibold mb-2">Important Dates</h4>
+          <div className="overflow-auto">
+            <table className="w-full border border-gray-200 text-sm">
+              <tbody>
+                {events.map((event, idx) => (
+                  <tr key={idx}>
+                    <td className="p-2 font-medium bg-gray-50 w-1/3 capitalize">
+                      {event.eventAction}
+                    </td>
+                    <td className="p-2">{formatDate(event.eventDate)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Entities (Contacts) */}
       {Array.isArray(entities) && entities.length > 0 && (
         <div>
-          <h4 className="text-md font-semibold mb-2">Entities</h4>
-          <ul className="list-disc pl-5 space-y-1">
+          <h4 className="text-md font-semibold mb-2">Entities / Contacts</h4>
+          <div className="space-y-4">
             {entities.map((entity, idx) => (
-              <li key={idx}>
-                {entity.handle || "No entity handle"}
-                {entity.roles && ` (roles: ${entity.roles.join(", ")})`}
-              </li>
+              <div
+                key={idx}
+                className="border border-gray-200 rounded p-3 text-sm"
+              >
+                <p className="font-semibold capitalize">
+                  {entity.roles?.join(", ") || "Entity"}
+                </p>
+                <p>
+                  <strong>Handle:</strong> {entity.handle || "N/A"}
+                </p>
+                {entity.vcardArray && (
+                  <p>
+                    <strong>Name:</strong>{" "}
+                    {entity.vcardArray[1].find((item) => item[0] === "fn")?.[3] ||
+                      "N/A"}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Nameservers */}
+      {Array.isArray(nameservers) && nameservers.length > 0 && (
+        <div>
+          <h4 className="text-md font-semibold mb-2">Nameservers</h4>
+          <ul className="list-disc pl-5 space-y-1 text-sm">
+            {nameservers.map((ns, idx) => (
+              <li key={idx}>{ns.ldhName}</li>
             ))}
           </ul>
         </div>
       )}
 
-      {/* Events */}
-      {Array.isArray(events) && events.length > 0 && (
+      {/* DNSSEC */}
+      {secureDNS && (
         <div>
-          <h4 className="text-md font-semibold mb-2">Events</h4>
-          <ul className="list-disc pl-5 space-y-1">
-            {events.map((event, idx) => (
-              <li key={idx}>
-                <strong>{event.eventAction}:</strong> {event.eventDate}
-              </li>
-            ))}
-          </ul>
+          <h4 className="text-md font-semibold mb-2">DNSSEC</h4>
+          <p className="text-sm">
+            {secureDNS.delegationSigned
+              ? "Signed (Secure)"
+              : "Not Signed (Insecure)"}
+          </p>
+        </div>
+      )}
+
+      {/* Email Security */}
+      {emailSecurity && (
+        <div>
+          <h4 className="text-md font-semibold mb-2">Email Security</h4>
+          <div className="overflow-auto">
+            <table className="w-full border border-gray-200 text-sm">
+              <tbody>
+                {renderRow("SPF", emailSecurity.spf)}
+                {renderRow("DMARC", emailSecurity.dmarc)}
+                {renderRow("DKIM", emailSecurity.dkim)}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* SSL/TLS Certificate */}
+      {ssl && (
+        <div>
+          <h4 className="text-md font-semibold mb-2">SSL/TLS Certificate</h4>
+          {ssl.error ? (
+            <p className="text-sm text-red-600">{ssl.error}</p>
+          ) : (
+            <div className="overflow-auto">
+              <table className="w-full border border-gray-200 text-sm">
+                <tbody>
+                  {renderRow("Subject", ssl.subject?.CN)}
+                  {renderRow("Issuer", ssl.issuer?.CN)}
+                  {renderRow("Valid From", formatDate(ssl.valid_from))}
+                  {renderRow("Valid To", formatDate(ssl.valid_to))}
+                  {renderRow("Fingerprint", ssl.fingerprint)}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* RBL Status */}
+      {rbl && (
+        <div>
+          <h4 className="text-md font-semibold mb-2">RBL Status</h4>
+          {rbl.error ? (
+            <p className="text-sm text-red-600">{rbl.error}</p>
+          ) : (
+            <div className="overflow-auto">
+              <table className="w-full border border-gray-200 text-sm">
+                <thead>
+                  <tr>
+                    <th className="p-2 font-medium bg-gray-50 text-left">RBL Provider</th>
+                    <th className="p-2 font-medium bg-gray-50 text-left">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.entries(rbl).map(([provider, result]) => (
+                    <tr key={provider}>
+                      <td className="p-2">{provider}</td>
+                      <td
+                        className={`p-2 ${result.status === "Listed" ? "text-red-600 font-bold" : ""}`}>
+                        {result.status}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -115,14 +218,56 @@ function StructuredRdapData({ data }) {
 export default function HomePage() {
   const [type, setType] = useState("domain");
   const [objectValue, setObjectValue] = useState("");
+  const [dkimSelector, setDkimSelector] = useState("");
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showJson, setShowJson] = useState(false);
   const [captchaToken, setCaptchaToken] = useState("");
 
+  function validateInput(type, value) {
+    if (!value) return "Object identifier is required.";
+
+    switch (type) {
+      case "domain":
+        // Basic domain validation: must contain a dot and have no spaces.
+        if (!/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value)) {
+          return "Please enter a valid domain name (e.g., google.com).";
+        }
+        break;
+      case "ip":
+        // Basic IP validation (IPv4 or IPv6).
+        if (!/^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}$|^([0-9a-fA-F]{1,4}:){1,7}:$/.test(value)) {
+          return "Please enter a valid IPv4 or IPv6 address.";
+        }
+        break;
+      case "autnum":
+        // ASN validation: must be a number, optionally prefixed with 'AS'.
+        if (!/^(AS|as)?[0-9]+$/.test(value)) {
+          return "Please enter a valid ASN (e.g., 15169 or AS15169).";
+        }
+        break;
+      case "entity":
+        // Entity validation is less strict, but we can enforce some basic rules.
+        if (value.length < 2) {
+          return "Entity handle must be at least 2 characters long.";
+        }
+        break;
+      default:
+        return "Invalid object type.";
+    }
+
+    return null; // No error
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
+
+    const validationError = validateInput(type, objectValue);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
 
     if (!captchaToken) {
       setError("Please complete the captcha verification.");
@@ -141,6 +286,7 @@ export default function HomePage() {
         body: JSON.stringify({
           type,
           object: objectValue,
+          dkimSelector,
           captchaToken,
         }),
       });
@@ -219,6 +365,25 @@ export default function HomePage() {
               />
             </div>
 
+            {/* DKIM Selector (optional, for domains only) */}
+            {type === "domain" && (
+              <div>
+                <Label
+                  htmlFor="dkimSelector"
+                  className="mb-2 block text-sm font-medium"
+                >
+                  DKIM Selector (Optional)
+                </Label>
+                <Input
+                  id="dkimSelector"
+                  type="text"
+                  placeholder="e.g., google"
+                  value={dkimSelector}
+                  onChange={(e) => setDkimSelector(e.target.value)}
+                />
+              </div>
+            )}
+
             {/* hCaptcha */}
             <div className="flex justify-center">
               <HCaptcha
@@ -271,7 +436,11 @@ export default function HomePage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {showJson ? (
+            {isLoading ? (
+              <div className="flex justify-center items-center p-8">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              </div>
+            ) : showJson ? (
               <pre className="text-sm bg-gray-100 p-2 rounded overflow-auto">
                 {JSON.stringify(result, null, 2)}
               </pre>

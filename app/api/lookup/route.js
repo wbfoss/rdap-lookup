@@ -195,7 +195,6 @@ function getCertificate(domain) {
     const options = {
       host: domain,
       port: 443,
-      rejectUnauthorized: false, // Allow self-signed certificates
     };
 
     const socket = tls.connect(options, () => {

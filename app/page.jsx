@@ -109,6 +109,7 @@ function StructuredRdapData({ data }) {
                   <p>
                     <strong>Name:</strong>{" "}
                     {entity.vcardArray[1].find((item) => item[0] === "fn")?.[3] ||
+                      entity.vcardArray[1].find((item) => item[0] === "org")?.[3] ||
                       "N/A"}
                   </p>
                 )}
@@ -233,6 +234,7 @@ export default function HomePage() {
   const [showJson, setShowJson] = useState(false);
   const [captchaToken, setCaptchaToken] = useState("");
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [hasQueryResult, setHasQueryResult] = useState(false); // New state for query result presence
   const captchaRef = useRef(null);
 
   const toggleDarkMode = () => {
@@ -311,6 +313,7 @@ export default function HomePage() {
         throw new Error(data.message || "Error fetching RDAP data.");
       }
       setResult(data);
+      setHasQueryResult(true); // Set to true after a successful query
     } catch (err) {
       setError(err.message);
     } finally {
@@ -321,12 +324,14 @@ export default function HomePage() {
   function resetForm() {
     setType("domain");
     setObjectValue("");
+    setDkimSelector(""); // Clear DKIM selector on reset
     setResult(null);
     setError(null);
     setShowJson(false);
     setCaptchaToken("");
+    setHasQueryResult(false); // Reset to false
     if (captchaRef.current) {
-      captchaRef.current.reset();
+      captchaRef.current.reset(); // Reset hCaptcha
     }
   }
 
@@ -348,7 +353,7 @@ export default function HomePage() {
               <Label htmlFor="type" className="mb-2 block text-sm font-medium">
                 Object Type
               </Label>
-              <Select value={type} onValueChange={(val) => setType(val)}>
+              <Select value={type} onValueChange={(val) => setType(val)} disabled={hasQueryResult}>
                 <SelectTrigger id="type" className="w-full">
                   <SelectValue placeholder="Select an RDAP type" />
                 </SelectTrigger>
@@ -376,6 +381,7 @@ export default function HomePage() {
                 value={objectValue}
                 onChange={(e) => setObjectValue(e.target.value)}
                 required
+                disabled={hasQueryResult}
               />
             </div>
 
@@ -394,6 +400,7 @@ export default function HomePage() {
                   placeholder="e.g., google"
                   value={dkimSelector}
                   onChange={(e) => setDkimSelector(e.target.value)}
+                  disabled={hasQueryResult}
                 />
               </div>
             )}
@@ -409,15 +416,16 @@ export default function HomePage() {
             </div>
 
             <div className="flex items-center gap-2">
-              <Button
-                variant="default"
-                type="submit"
-                disabled={!type || !objectValue || isLoading || !captchaToken}
-              >
-                {isLoading ? "Checking..." : "Lookup"}
-              </Button>
-              {result && (
-                <Button variant="outline" type="button" onClick={resetForm}>
+              {!hasQueryResult ? (
+                <Button
+                  type="submit"
+                  disabled={!type || !objectValue || isLoading || !captchaToken}
+                  className="w-full"
+                >
+                  {isLoading ? "Checking..." : "Lookup"}
+                </Button>
+              ) : (
+                <Button type="button" onClick={resetForm} className="w-full">
                   Make Another Query
                 </Button>
               )}
@@ -456,7 +464,7 @@ export default function HomePage() {
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
               </div>
             ) : showJson ? (
-              <pre className="text-sm bg-gray-100 p-2 rounded overflow-auto">
+              <pre className="text-sm bg-gray-100 p-2 rounded overflow-auto dark:bg-gray-900 dark:text-gray-200">
                 {JSON.stringify(result, null, 2)}
               </pre>
             ) : (
@@ -467,7 +475,7 @@ export default function HomePage() {
       )}
 
       {/* Footer Section */}
-      <div className="mt-6 text-xs text-gray-600">
+      <div className="mt-6 text-xs text-gray-600 dark:text-gray-400">
         Special Thanks to{" "}
         <a
           href="https://rdap.org"

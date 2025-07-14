@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
 
 // shadcn/ui components
@@ -54,8 +54,8 @@ function StructuredRdapData({ data }) {
       {/* General Information */}
       <div>
         <h4 className="text-md font-semibold mb-2">General Information</h4>
-        <div className="overflow-auto">
-          <table className="w-full border border-gray-200 text-sm">
+        <div className="rounded-md border dark:border-gray-700 overflow-hidden">
+          <table className="w-full text-sm">
             <tbody>
               {renderRow("Object Class", objectClassName)}
               {renderRow("Handle", handle)}
@@ -72,12 +72,12 @@ function StructuredRdapData({ data }) {
       {Array.isArray(events) && events.length > 0 && (
         <div>
           <h4 className="text-md font-semibold mb-2">Important Dates</h4>
-          <div className="overflow-auto">
-            <table className="w-full border border-gray-200 text-sm">
+          <div className="rounded-md border dark:border-gray-700 overflow-hidden">
+            <table className="w-full text-sm">
               <tbody>
                 {events.map((event, idx) => (
                   <tr key={idx}>
-                    <td className="p-2 font-medium bg-gray-50 w-1/3 capitalize">
+                    <td className="p-2 font-medium bg-gray-50 w-1/3 capitalize dark:bg-gray-700">
                       {event.eventAction}
                     </td>
                     <td className="p-2">{formatDate(event.eventDate)}</td>
@@ -97,7 +97,7 @@ function StructuredRdapData({ data }) {
             {entities.map((entity, idx) => (
               <div
                 key={idx}
-                className="border border-gray-200 rounded p-3 text-sm"
+                className="border border-gray-200 rounded p-3 text-sm dark:border-gray-700"
               >
                 <p className="font-semibold capitalize">
                   {entity.roles?.join(", ") || "Entity"}
@@ -122,11 +122,13 @@ function StructuredRdapData({ data }) {
       {Array.isArray(nameservers) && nameservers.length > 0 && (
         <div>
           <h4 className="text-md font-semibold mb-2">Nameservers</h4>
-          <ul className="list-disc pl-5 space-y-1 text-sm">
-            {nameservers.map((ns, idx) => (
-              <li key={idx}>{ns.ldhName}</li>
-            ))}
-          </ul>
+          <div className="rounded-md border dark:border-gray-700 overflow-hidden">
+            <ul className="list-disc pl-5 space-y-1 text-sm p-2">
+              {nameservers.map((ns, idx) => (
+                <li key={idx} className="p-1">{ns.ldhName}</li>
+              ))}
+            </ul>
+          </div>
         </div>
       )}
 
@@ -134,11 +136,13 @@ function StructuredRdapData({ data }) {
       {secureDNS && (
         <div>
           <h4 className="text-md font-semibold mb-2">DNSSEC</h4>
-          <p className="text-sm">
-            {secureDNS.delegationSigned
-              ? "Signed (Secure)"
-              : "Not Signed (Insecure)"}
-          </p>
+          <div className="rounded-md border dark:border-gray-700 p-3 text-sm">
+            <p>
+              {secureDNS.delegationSigned
+                ? "Signed (Secure)"
+                : "Not Signed (Insecure)"}
+            </p>
+          </div>
         </div>
       )}
 
@@ -146,8 +150,8 @@ function StructuredRdapData({ data }) {
       {emailSecurity && (
         <div>
           <h4 className="text-md font-semibold mb-2">Email Security</h4>
-          <div className="overflow-auto">
-            <table className="w-full border border-gray-200 text-sm">
+          <div className="rounded-md border dark:border-gray-700 overflow-hidden">
+            <table className="w-full text-sm">
               <tbody>
                 {renderRow("SPF", emailSecurity.spf)}
                 {renderRow("DMARC", emailSecurity.dmarc)}
@@ -163,10 +167,12 @@ function StructuredRdapData({ data }) {
         <div>
           <h4 className="text-md font-semibold mb-2">SSL/TLS Certificate</h4>
           {ssl.error ? (
-            <p className="text-sm text-red-600">{ssl.error}</p>
+            <div className="rounded-md border border-red-300 bg-red-50 text-red-700 p-3 text-sm dark:border-red-700 dark:bg-red-900 dark:text-red-300">
+              <p>{ssl.error}</p>
+            </div>
           ) : (
-            <div className="overflow-auto">
-              <table className="w-full border border-gray-200 text-sm">
+            <div className="rounded-md border dark:border-gray-700 overflow-hidden">
+              <table className="w-full text-sm">
                 <tbody>
                   {renderRow("Subject", ssl.subject?.CN)}
                   {renderRow("Issuer", ssl.issuer?.CN)}
@@ -185,14 +191,16 @@ function StructuredRdapData({ data }) {
         <div>
           <h4 className="text-md font-semibold mb-2">RBL Status</h4>
           {rbl.error ? (
-            <p className="text-sm text-red-600">{rbl.error}</p>
+            <div className="rounded-md border border-red-300 bg-red-50 text-red-700 p-3 text-sm dark:border-red-700 dark:bg-red-900 dark:text-red-300">
+              <p>{rbl.error}</p>
+            </div>
           ) : (
-            <div className="overflow-auto">
-              <table className="w-full border border-gray-200 text-sm">
+            <div className="rounded-md border dark:border-gray-700 overflow-hidden">
+              <table className="w-full text-sm">
                 <thead>
                   <tr>
-                    <th className="p-2 font-medium bg-gray-50 text-left">RBL Provider</th>
-                    <th className="p-2 font-medium bg-gray-50 text-left">Status</th>
+                    <th className="p-2 font-medium bg-gray-50 text-left dark:bg-gray-700">RBL Provider</th>
+                    <th className="p-2 font-medium bg-gray-50 text-left dark:bg-gray-700">Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -200,7 +208,7 @@ function StructuredRdapData({ data }) {
                     <tr key={provider}>
                       <td className="p-2">{provider}</td>
                       <td
-                        className={`p-2 ${result.status === "Listed" ? "text-red-600 font-bold" : ""}`}>
+                        className={`p-2 ${result.status === "Listed" ? "text-red-600 font-bold dark:text-red-400" : ""}`}>
                         {result.status}
                       </td>
                     </tr>
@@ -225,6 +233,7 @@ export default function HomePage() {
   const [showJson, setShowJson] = useState(false);
   const [captchaToken, setCaptchaToken] = useState("");
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const captchaRef = useRef(null);
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
@@ -316,12 +325,8 @@ export default function HomePage() {
     setError(null);
     setShowJson(false);
     setCaptchaToken("");
-    // Reset hCaptcha if it exists
-    const hcaptchaElement = document.querySelector(
-      "iframe[data-hcaptcha-widget-id]"
-    );
-    if (hcaptchaElement) {
-      hcaptchaElement.contentWindow.postMessage('{"event":"reset"}', "*");
+    if (captchaRef.current) {
+      captchaRef.current.reset();
     }
   }
 
@@ -399,6 +404,7 @@ export default function HomePage() {
                 sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY}
                 onVerify={(token) => setCaptchaToken(token)}
                 onExpire={() => setCaptchaToken("")}
+                ref={captchaRef}
               />
             </div>
 
@@ -423,7 +429,7 @@ export default function HomePage() {
       {/* Error Display */}
       {error && (
         <div className="mb-4">
-          <div className="p-4 border border-red-300 bg-red-50 text-red-700 rounded-md">
+          <div className="p-4 border border-red-300 bg-red-50 text-red-700 rounded-md dark:border-red-700 dark:bg-red-900 dark:text-red-300">
             <strong>Error:</strong> {error}
           </div>
         </div>

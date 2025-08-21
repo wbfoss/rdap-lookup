@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
 import ImprovedRdapDisplay from "@/components/ImprovedRdapDisplay";
+import { Github, Star } from "lucide-react";
 
 // shadcn/ui components
 import { Button } from "@/components/ui/button";
@@ -146,6 +147,27 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+      {/* GitHub Badge */}
+      <div className="bg-white dark:bg-gray-900 border-b shadow-sm">
+        <div className="container mx-auto px-4 py-3 max-w-6xl">
+          <div className="flex items-center justify-center">
+            <a
+              href="https://github.com/gensecaihq/rdap-lookup"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 dark:bg-gray-800 text-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-700 transition-colors group"
+            >
+              <Github className="w-5 h-5" />
+              <span className="font-medium">Star on GitHub</span>
+              <div className="flex items-center gap-1 px-2 py-1 bg-gray-800 dark:bg-gray-700 rounded text-sm">
+                <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                <span className="text-gray-300">⭐</span>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+      
       <main className="container mx-auto px-4 py-6 max-w-6xl">
         <div className={`${hasQueryResult ? 'grid grid-cols-1 lg:grid-cols-12 gap-8' : 'max-w-2xl mx-auto'}`}>
           {/* Form Section */}
@@ -267,15 +289,63 @@ export default function HomePage() {
 
             {/* Footer Section */}
             {!hasQueryResult && (
-              <div className="mt-6 text-xs text-center text-gray-600 dark:text-gray-400">
-                Special Thanks to{" "}
-                <a href="https://rdap.org" target="_blank" rel="noopener noreferrer" className="underline">
-                  rdap.org
-                </a>{" "}
-                and{" "}
-                <a href="https://iana.org" target="_blank" rel="noopener noreferrer" className="underline">
-                  iana.org
-                </a>
+              <div className="mt-8">
+                <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-6 mb-6">
+                  <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-3">
+                    Why RDAP Instead of WHOIS?
+                  </h3>
+                  <div className="space-y-3 text-sm text-blue-800 dark:text-blue-200">
+                    <p>
+                      <strong>RDAP (Registration Data Access Protocol)</strong> is the modern, standardized replacement for the legacy WHOIS protocol, providing significant improvements:
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <h4 className="font-semibold text-blue-900 dark:text-blue-100">RDAP Advantages:</h4>
+                        <ul className="space-y-1 text-sm">
+                          <li>• <strong>Structured JSON Data:</strong> Machine-readable responses</li>
+                          <li>• <strong>Internationalization:</strong> Better support for non-ASCII domains</li>
+                          <li>• <strong>RESTful API:</strong> Easy integration with modern applications</li>
+                          <li>• <strong>Access Control:</strong> Privacy-compliant data access</li>
+                        </ul>
+                      </div>
+                      <div className="space-y-2">
+                        <h4 className="font-semibold text-blue-900 dark:text-blue-100">WHOIS Limitations:</h4>
+                        <ul className="space-y-1 text-sm">
+                          <li>• <strong>Unstructured Text:</strong> Difficult to parse automatically</li>
+                          <li>• <strong>Protocol Variations:</strong> Inconsistent implementations</li>
+                          <li>• <strong>Limited Security:</strong> No built-in access controls</li>
+                          <li>• <strong>Legacy Format:</strong> Designed for 1980s technology</li>
+                        </ul>
+                      </div>
+                    </div>
+                    <p className="pt-2 text-xs text-blue-700 dark:text-blue-300">
+                      RDAP is the official successor to WHOIS, recommended by ICANN and implemented by major registries worldwide.
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="text-xs text-center text-gray-600 dark:text-gray-400">
+                  <p className="mb-2">
+                    <strong>Data Sources:</strong> Special thanks to{" "}
+                    <a href="https://rdap.org" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600">
+                      rdap.org
+                    </a>{" "}
+                    and{" "}
+                    <a href="https://iana.org" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600">
+                      iana.org
+                    </a>
+                  </p>
+                  <p>
+                    Open source project hosted on{" "}
+                    <a href="https://vercel.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600">
+                      Vercel
+                    </a>{" "}
+                    •{" "}
+                    <a href="https://github.com/gensecaihq/rdap-lookup" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600">
+                      Contribute on GitHub
+                    </a>
+                  </p>
+                </div>
               </div>
             )}
           </div>
@@ -290,15 +360,94 @@ export default function HomePage() {
 
         {/* Footer for results view */}
         {hasQueryResult && (
-          <div className="mt-8 pt-8 border-t text-xs text-center text-gray-600 dark:text-gray-400">
-            Special Thanks to{" "}
-            <a href="https://rdap.org" target="_blank" rel="noopener noreferrer" className="underline">
-              rdap.org
-            </a>{" "}
-            and{" "}
-            <a href="https://iana.org" target="_blank" rel="noopener noreferrer" className="underline">
-              iana.org
-            </a>
+          <div className="mt-8 pt-8 border-t">
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2">
+                  <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
+                    <span className="text-2xl">🚀</span>
+                    RDAP: The Future of Domain Lookups
+                  </h3>
+                  <p className="text-sm text-blue-800 dark:text-blue-200 mb-4">
+                    You just experienced <strong>RDAP (Registration Data Access Protocol)</strong> - the modern successor to WHOIS. 
+                    Unlike legacy WHOIS text-based queries, RDAP provides structured, standardized, and privacy-compliant domain information.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                    <div>
+                      <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">Why RDAP is Better:</h4>
+                      <ul className="space-y-1 text-blue-700 dark:text-blue-300">
+                        <li>✅ Structured JSON responses</li>
+                        <li>✅ RESTful HTTP/HTTPS protocol</li>
+                        <li>✅ Internationalization support</li>
+                        <li>✅ Built-in privacy controls</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">WHOIS Limitations:</h4>
+                      <ul className="space-y-1 text-blue-700 dark:text-blue-300">
+                        <li>❌ Unstructured text output</li>
+                        <li>❌ Inconsistent formats</li>
+                        <li>❌ Limited Unicode support</li>
+                        <li>❌ No access control</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div className="lg:border-l lg:border-blue-200 dark:lg:border-blue-700 lg:pl-6">
+                  <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-3">Learn More</h4>
+                  <div className="space-y-2 text-sm">
+                    <a 
+                      href="https://www.icann.org/rdap" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="block text-blue-600 dark:text-blue-400 hover:underline"
+                    >
+                      📚 ICANN RDAP Documentation
+                    </a>
+                    <a 
+                      href="https://tools.ietf.org/html/rfc7483" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="block text-blue-600 dark:text-blue-400 hover:underline"
+                    >
+                      📋 RFC 7483 - RDAP Specification
+                    </a>
+                    <a 
+                      href="https://github.com/gensecaihq/rdap-lookup" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="block text-blue-600 dark:text-blue-400 hover:underline"
+                    >
+                      🌟 Star this project on GitHub
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="text-xs text-center text-gray-600 dark:text-gray-400">
+              <p className="mb-2">
+                <strong>Powered by:</strong>{" "}
+                <a href="https://rdap.org" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600">
+                  rdap.org
+                </a>{" "}
+                and{" "}
+                <a href="https://iana.org" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600">
+                  iana.org
+                </a>{" "}
+                • Built with Next.js and hosted on{" "}
+                <a href="https://vercel.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600">
+                  Vercel
+                </a>
+              </p>
+              <p>
+                Open source project •{" "}
+                <a href="https://github.com/gensecaihq/rdap-lookup" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600">
+                  Contribute on GitHub
+                </a>{" "}
+                • Made with ❤️ for the developer community
+              </p>
+            </div>
           </div>
         )}
       </main>

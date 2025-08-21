@@ -1,7 +1,10 @@
-import '@/styles/globals.css';
+import '../styles/globals.css';
 import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
+import { Providers } from '../components/providers';
 
 export const metadata = {
+  metadataBase: new URL('https://rdap.vercel.app'),
   title: 'RDAP Lookup Tool - Modern Domain Intelligence & WHOIS Alternative',
   description: 'Free RDAP lookup tool for domain, IP, and ASN queries. Modern replacement for WHOIS with structured data, security analysis, and privacy compliance. Get comprehensive domain intelligence instantly.',
   keywords: [
@@ -53,11 +56,10 @@ export const metadata = {
     description: 'Free RDAP lookup tool for domain, IP, and ASN queries. Modern replacement for WHOIS with structured data, security analysis, and privacy compliance.',
     images: [
       {
-        url: 'https://rdap.vercel.app/og-image.png',
+        url: '/api/og',
         width: 1200,
         height: 630,
         alt: 'RDAP Lookup Tool - Modern Domain Intelligence',
-        type: 'image/png',
       },
     ],
   },
@@ -67,7 +69,7 @@ export const metadata = {
     creator: '@rdaplookup',
     title: 'RDAP Lookup Tool - Modern Domain Intelligence',
     description: 'Free RDAP lookup tool for domain, IP, and ASN queries. Modern replacement for WHOIS with structured data and security analysis.',
-    images: ['https://rdap.vercel.app/twitter-image.png'],
+    images: ['/api/og?title=RDAP+Lookup+Tool&description=Modern+Domain+Intelligence'],
   },
   alternates: {
     canonical: 'https://rdap.vercel.app',
@@ -137,11 +139,16 @@ export default function RootLayout({ children }) {
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-        <link rel="manifest" href="/site.webmanifest" />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+        <meta name="format-detection" content="telephone=no" />
       </head>
-      <body className="min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white antialiased">
-        {children}
-        <Analytics />
+      <body className="min-h-screen bg-background text-foreground antialiased">
+        <Providers>
+          {children}
+          <Analytics />
+          <SpeedInsights />
+        </Providers>
       </body>
     </html>
   );

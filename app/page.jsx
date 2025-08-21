@@ -2,21 +2,77 @@
 
 import { useState, useRef, useEffect } from "react";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
-import WhoisEquivalentDisplay from "@/components/WhoisEquivalentDisplay";
-import GitHubBadge from "@/components/GitHubBadge";
-
-// shadcn/ui components
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import {
+import { 
+  Card, 
+  CardBody, 
+  CardHeader,
+  Input,
+  Button,
   Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
   SelectItem,
-} from "@/components/ui/select";
+  Chip,
+  Divider,
+  Navbar,
+  NavbarBrand,
+  NavbarContent,
+  NavbarItem,
+  Switch,
+  Spinner,
+  Code,
+  Link,
+  Avatar,
+  Badge,
+  Progress,
+  Tooltip,
+  Tabs,
+  Tab,
+  ScrollShadow,
+  Snippet,
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
+  TableCell,
+  User,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure
+} from "@nextui-org/react";
+import { 
+  Search,
+  Globe,
+  Server,
+  Shield,
+  Calendar,
+  Clock,
+  CheckCircle,
+  AlertCircle,
+  Activity,
+  Database,
+  Download,
+  Copy,
+  ExternalLink,
+  Sun,
+  Moon,
+  Github,
+  Star,
+  TrendingUp,
+  Info,
+  Mail,
+  Lock,
+  Building,
+  MapPin,
+  Phone,
+  Key,
+  ShieldCheck,
+  ShieldAlert,
+  Network,
+  Zap
+} from "lucide-react";
 
 export default function HomePage() {
   const [type, setType] = useState("domain");
@@ -27,10 +83,12 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [captchaToken, setCaptchaToken] = useState("");
   const [isDarkMode, setIsDarkMode] = useState(true);
-  const [hasQueryResult, setHasQueryResult] = useState(false); // New state for query result presence
-  const [captchaKey, setCaptchaKey] = useState(Date.now()); // Key to force hCaptcha re-render
-  const [isResetting, setIsResetting] = useState(false); // Track reset state
+  const [captchaKey, setCaptchaKey] = useState(Date.now());
+  const [isResetting, setIsResetting] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
   const captchaRef = useRef(null);
+  const {isOpen, onOpen, onOpenChange} = useDisclosure();
+  const [copiedField, setCopiedField] = useState(null);
 
   // Apply dark mode by default on component mount
   useEffect(() => {
@@ -42,30 +100,32 @@ export default function HomePage() {
     document.documentElement.classList.toggle("dark");
   };
 
+  const copyToClipboard = (text, field) => {
+    navigator.clipboard.writeText(text);
+    setCopiedField(field);
+    setTimeout(() => setCopiedField(null), 2000);
+  };
+
   function validateInput(type, value) {
     if (!value) return "Object identifier is required.";
 
     switch (type) {
       case "domain":
-        // Basic domain validation: must contain a dot and have no spaces.
         if (!/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value)) {
           return "Please enter a valid domain name (e.g., google.com).";
         }
         break;
       case "ip":
-        // Basic IP validation (IPv4 or IPv6).
         if (!/^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}$|^([0-9a-fA-F]{1,4}:){1,7}:$/.test(value)) {
           return "Please enter a valid IPv4 or IPv6 address.";
         }
         break;
       case "autnum":
-        // ASN validation: must be a number, optionally prefixed with 'AS'.
         if (!/^(AS|as)?[0-9]+$/.test(value)) {
           return "Please enter a valid ASN (e.g., 15169 or AS15169).";
         }
         break;
       case "entity":
-        // Entity validation is less strict, but we can enforce some basic rules.
         if (value.length < 2) {
           return "Entity handle must be at least 2 characters long.";
         }
@@ -74,7 +134,7 @@ export default function HomePage() {
         return "Invalid object type.";
     }
 
-    return null; // No error
+    return null;
   }
 
   async function handleSubmit(e) {
@@ -112,7 +172,7 @@ export default function HomePage() {
         throw new Error(data.message || "Error fetching RDAP data.");
       }
       setResult(data);
-      setHasQueryResult(true); // Set to true after a successful query
+      setActiveTab("overview");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -122,19 +182,14 @@ export default function HomePage() {
 
   async function resetForm() {
     setIsResetting(true);
-    
-    // Clear form data
     setType("domain");
     setObjectValue("");
     setDkimSelector("");
     setResult(null);
     setError(null);
     setCaptchaToken("");
-    
-    // Force hCaptcha re-render with new key
     setCaptchaKey(Date.now());
     
-    // Reset hCaptcha and ensure it's properly cleared
     if (captchaRef.current) {
       try {
         captchaRef.current.reset();
@@ -143,349 +198,844 @@ export default function HomePage() {
       }
     }
     
-    // Small delay to ensure everything is reset properly
     await new Promise(resolve => setTimeout(resolve, 100));
-    
-    setHasQueryResult(false);
     setIsResetting(false);
   }
 
-  return (
-    <>
-      {/* SEO and Accessibility */}
-      <header className="sr-only">
-        <h1>RDAP Lookup Tool - Modern Domain Intelligence and WHOIS Alternative</h1>
-        <p>
-          Free, fast, and comprehensive RDAP lookup service for domains, IP addresses, and ASN queries. 
-          Get structured domain registration data, security analysis, and privacy-compliant information 
-          that replaces traditional WHOIS lookups with modern JSON-based responses.
-        </p>
-      </header>
+  const formatDate = (dateString) => {
+    if (!dateString) return null;
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffDays = Math.floor((date - now) / (1000 * 60 * 60 * 24));
+    
+    return {
+      formatted: date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      }),
+      relative: diffDays < 0 
+        ? `${Math.abs(diffDays)} days ago`
+        : diffDays === 0 
+        ? "Today"
+        : `In ${diffDays} days`,
+      isExpired: date < now,
+      isExpiringSoon: diffDays > 0 && diffDays <= 30,
+      diffDays: diffDays
+    };
+  };
 
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-        {/* GitHub Badge with Live Star Count */}
-        <GitHubBadge owner="gensecaihq" repo="rdap-lookup" />
-        
-        <main className="container mx-auto px-4 py-6 max-w-6xl" role="main">
-        <div className={`${hasQueryResult ? 'grid grid-cols-1 lg:grid-cols-12 gap-8' : 'max-w-2xl mx-auto'}`}>
-          {/* Form Section */}
-          <div className={hasQueryResult ? 'lg:col-span-4' : 'w-full'}>
-            <Card className="mb-6 shadow-2xl border-0 overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white">
-                <CardTitle className="text-2xl font-bold flex justify-between items-center" role="banner">
-                  <div className="flex items-center gap-3">
-                    <span className="text-3xl" aria-label="Search icon">🔍</span>
-                    <div>
-                      <h2 className="text-2xl font-bold">RDAP Lookup Tool</h2>
-                      <div className="text-sm opacity-90 font-normal">Modern Domain Intelligence & WHOIS Alternative</div>
-                    </div>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    onClick={toggleDarkMode} 
-                    className="border-white/30 text-white hover:bg-white/20 backdrop-blur-sm"
-                    size="sm"
-                  >
-                    {isDarkMode ? "🌞" : "🌙"}
-                  </Button>
-                </CardTitle>
-              </CardHeader>
-        <CardContent className="p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* RDAP Type */}
-            <div>
-              <Label htmlFor="type" className="mb-2 block text-sm font-medium">
-                Object Type
-              </Label>
-              <Select value={type} onValueChange={(val) => setType(val)} disabled={hasQueryResult}>
-                <SelectTrigger id="type" className="w-full">
-                  <SelectValue placeholder="Select an RDAP type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="domain">Domain</SelectItem>
-                  <SelectItem value="ip">IP</SelectItem>
-                  <SelectItem value="autnum">ASN (autnum)</SelectItem>
-                  <SelectItem value="entity">Entity</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+  const renderQuickStats = () => {
+    if (!result) return null;
 
-            {/* RDAP Object Input */}
-            <div>
-              <Label
-                htmlFor="objectValue"
-                className="mb-2 block text-sm font-medium"
-              >
-                Object Identifier
-              </Label>
-              <Input
-                id="objectValue"
-                type="text"
-                placeholder="e.g. google.com or 8.8.8.8"
-                value={objectValue}
-                onChange={(e) => setObjectValue(e.target.value)}
-                required
-                disabled={hasQueryResult}
-              />
-            </div>
+    const stats = [
+      {
+        label: "Status",
+        value: result.status?.[0] || "Active",
+        icon: <Activity className="w-4 h-4" />,
+        color: "success"
+      },
+      {
+        label: "DNSSEC",
+        value: result.secureDNS?.delegationSigned ? "Enabled" : "Disabled",
+        icon: <Shield className="w-4 h-4" />,
+        color: result.secureDNS?.delegationSigned ? "success" : "warning"
+      },
+      {
+        label: "Nameservers",
+        value: result.nameservers?.length || 0,
+        icon: <Server className="w-4 h-4" />,
+        color: "primary"
+      },
+      {
+        label: "Registry",
+        value: result.port43 || "RDAP",
+        icon: <Database className="w-4 h-4" />,
+        color: "secondary"
+      }
+    ];
 
-            {/* DKIM Selector (optional, for domains only) */}
-            {type === "domain" && (
-              <div>
-                <Label
-                  htmlFor="dkimSelector"
-                  className="mb-2 block text-sm font-medium"
+    return (
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+        {stats.map((stat, idx) => (
+          <Card key={idx} className="bg-default-50 dark:bg-default-100/10">
+            <CardBody className="p-4">
+              <div className="flex items-center justify-between mb-2">
+                <Chip 
+                  variant="flat" 
+                  color={stat.color}
+                  size="sm"
+                  startContent={stat.icon}
                 >
-                  DKIM Selector (Optional)
-                </Label>
-                <Input
-                  id="dkimSelector"
-                  type="text"
-                  placeholder="e.g., google"
-                  value={dkimSelector}
-                  onChange={(e) => setDkimSelector(e.target.value)}
-                  disabled={hasQueryResult}
-                />
+                  {stat.label}
+                </Chip>
               </div>
-            )}
+              <p className="text-xl font-bold">{stat.value}</p>
+            </CardBody>
+          </Card>
+        ))}
+      </div>
+    );
+  };
 
-            {/* hCaptcha */}
-            <div className="flex justify-center">
-              <HCaptcha
-                key={captchaKey}
-                sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY}
-                onVerify={(token) => setCaptchaToken(token)}
-                onExpire={() => setCaptchaToken("")}
-                onError={() => setCaptchaToken("")}
-                ref={captchaRef}
+  const renderOverviewTab = () => {
+    if (!result) return null;
+
+    return (
+      <div className="space-y-4">
+        {/* Domain Info Card */}
+        <Card>
+          <CardHeader className="flex justify-between">
+            <div className="flex gap-3">
+              <Avatar 
+                icon={<Globe className="w-5 h-5" />} 
+                className="bg-primary/10 text-primary"
               />
+              <div>
+                <p className="text-md font-semibold">Domain Information</p>
+                <p className="text-small text-default-500">{result.ldhName}</p>
+              </div>
             </div>
+            <Button
+              isIconOnly
+              variant="light"
+              onPress={() => copyToClipboard(result.ldhName, "domain")}
+            >
+              {copiedField === "domain" ? 
+                <CheckCircle className="w-4 h-4 text-success" /> : 
+                <Copy className="w-4 h-4" />
+              }
+            </Button>
+          </CardHeader>
+          <CardBody>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <div>
+                  <p className="text-small text-default-500 mb-1">Handle</p>
+                  <Code size="sm">{result.handle}</Code>
+                </div>
+                <div>
+                  <p className="text-small text-default-500 mb-1">Object Type</p>
+                  <Chip variant="flat" size="sm">{result.objectClassName}</Chip>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <p className="text-small text-default-500 mb-1">Status</p>
+                  <div className="flex flex-wrap gap-1">
+                    {result.status?.map((s, i) => (
+                      <Chip key={i} size="sm" variant="dot" color="success">
+                        {s.replace(/([A-Z])/g, ' $1').trim()}
+                      </Chip>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardBody>
+        </Card>
 
-            <div className="flex items-center gap-2 mt-6">
-              {!hasQueryResult ? (
-                <Button
-                  type="submit"
-                  disabled={!type || !objectValue || isLoading || !captchaToken}
-                  className="w-full h-14 text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 rounded-xl"
+        {/* Dates Card */}
+        {result.events && (
+          <Card>
+            <CardHeader>
+              <div className="flex gap-3">
+                <Avatar 
+                  icon={<Calendar className="w-5 h-5" />} 
+                  className="bg-warning/10 text-warning"
+                />
+                <div>
+                  <p className="text-md font-semibold">Important Dates</p>
+                  <p className="text-small text-default-500">Registration lifecycle</p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardBody>
+              <div className="space-y-3">
+                {result.events.map((event, idx) => {
+                  const dateInfo = formatDate(event.eventDate);
+                  if (!dateInfo) return null;
+                  
+                  return (
+                    <div key={idx} className="flex justify-between items-center p-3 rounded-lg bg-default-100/50">
+                      <div className="flex items-center gap-3">
+                        <Clock className="w-4 h-4 text-default-400" />
+                        <div>
+                          <p className="text-sm font-medium capitalize">
+                            {event.eventAction.replace('registration', 'Registered')}
+                          </p>
+                          <p className="text-xs text-default-500">{dateInfo.formatted}</p>
+                        </div>
+                      </div>
+                      <Chip 
+                        size="sm"
+                        variant="flat"
+                        color={
+                          dateInfo.isExpired ? "danger" : 
+                          dateInfo.isExpiringSoon ? "warning" : 
+                          "success"
+                        }
+                      >
+                        {dateInfo.relative}
+                      </Chip>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardBody>
+          </Card>
+        )}
+
+        {/* Nameservers Card */}
+        {result.nameservers && (
+          <Card>
+            <CardHeader>
+              <div className="flex gap-3">
+                <Avatar 
+                  icon={<Server className="w-5 h-5" />} 
+                  className="bg-secondary/10 text-secondary"
+                />
+                <div>
+                  <p className="text-md font-semibold">Nameservers</p>
+                  <p className="text-small text-default-500">{result.nameservers.length} servers</p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardBody>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {result.nameservers.map((ns, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-2 rounded-lg bg-default-100/50">
+                    <Code size="sm">{ns.ldhName}</Code>
+                    <Button
+                      size="sm"
+                      isIconOnly
+                      variant="light"
+                      onPress={() => copyToClipboard(ns.ldhName, `ns-${idx}`)}
+                    >
+                      {copiedField === `ns-${idx}` ? 
+                        <CheckCircle className="w-3 h-3 text-success" /> : 
+                        <Copy className="w-3 h-3" />
+                      }
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </CardBody>
+          </Card>
+        )}
+      </div>
+    );
+  };
+
+  const renderSecurityTab = () => {
+    if (!result) return null;
+
+    return (
+      <div className="space-y-4">
+        {/* DNSSEC Status */}
+        <Card>
+          <CardHeader>
+            <div className="flex gap-3">
+              <Avatar 
+                icon={result.secureDNS?.delegationSigned ? 
+                  <ShieldCheck className="w-5 h-5" /> : 
+                  <ShieldAlert className="w-5 h-5" />
+                } 
+                className={result.secureDNS?.delegationSigned ? 
+                  "bg-success/10 text-success" : 
+                  "bg-warning/10 text-warning"
+                }
+              />
+              <div>
+                <p className="text-md font-semibold">DNSSEC Status</p>
+                <p className="text-small text-default-500">
+                  {result.secureDNS?.delegationSigned ? "Protected" : "Not Protected"}
+                </p>
+              </div>
+            </div>
+          </CardHeader>
+          <CardBody>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-sm">Delegation Signed</span>
+                <Chip 
+                  size="sm" 
+                  color={result.secureDNS?.delegationSigned ? "success" : "warning"}
+                  variant="flat"
                 >
-                  {isLoading ? (
-                    <>
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-3"></div>
-                      <span className="text-base">Analyzing...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="mr-2">🔍</span>
-                      <span>Start RDAP Lookup</span>
-                    </>
-                  )}
-                </Button>
-              ) : (
-                <Button 
-                  type="button" 
-                  onClick={resetForm} 
-                  disabled={isResetting} 
-                  className="w-full h-12 text-base font-semibold bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 rounded-xl"
-                >
-                  {isResetting ? (
-                    <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                      Resetting...
-                    </>
-                  ) : (
-                    <>
-                      <span className="mr-2">✨</span>
-                      Make Another Query
-                    </>
-                  )}
-                </Button>
+                  {result.secureDNS?.delegationSigned ? "Yes" : "No"}
+                </Chip>
+              </div>
+              {result.secureDNS?.dsData && (
+                <div>
+                  <p className="text-sm text-default-500 mb-2">DS Records</p>
+                  <ScrollShadow className="max-h-40">
+                    {result.secureDNS.dsData.map((ds, idx) => (
+                      <div key={idx} className="mb-2 p-2 bg-default-100/50 rounded">
+                        <Code size="sm" className="text-xs">
+                          {`KeyTag: ${ds.keyTag}, Algorithm: ${ds.algorithm}, DigestType: ${ds.digestType}`}
+                        </Code>
+                      </div>
+                    ))}
+                  </ScrollShadow>
+                </div>
               )}
             </div>
-          </form>
-            </CardContent>
-            </Card>
+          </CardBody>
+        </Card>
 
-            {/* Error Display */}
-            {error && (
-              <div className="mb-4">
-                <div className="p-4 border border-red-300 bg-red-50 text-red-700 rounded-md dark:border-red-700 dark:bg-red-900 dark:text-red-300">
-                  <strong>Error:</strong> {error}
+        {/* Email Security */}
+        {result.emailSecurity && (
+          <Card>
+            <CardHeader>
+              <div className="flex gap-3">
+                <Avatar 
+                  icon={<Mail className="w-5 h-5" />} 
+                  className="bg-primary/10 text-primary"
+                />
+                <div>
+                  <p className="text-md font-semibold">Email Security</p>
+                  <p className="text-small text-default-500">SPF, DMARC, DKIM Configuration</p>
                 </div>
               </div>
-            )}
-
-            {/* Educational Content Section */}
-            {!hasQueryResult && (
-              <aside className="mt-8" role="complementary">
-                <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-6 mb-6">
-                  <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-3">
-                    Why RDAP Instead of WHOIS? The Future of Domain Lookups
-                  </h3>
-                  <div className="space-y-3 text-sm text-blue-800 dark:text-blue-200">
-                    <p>
-                      <strong>RDAP (Registration Data Access Protocol)</strong> is the modern, standardized replacement for the legacy WHOIS protocol, providing significant improvements:
-                    </p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <h4 className="font-semibold text-blue-900 dark:text-blue-100">RDAP Advantages:</h4>
-                        <ul className="space-y-1 text-sm">
-                          <li>• <strong>Structured JSON Data:</strong> Machine-readable responses</li>
-                          <li>• <strong>Internationalization:</strong> Better support for non-ASCII domains</li>
-                          <li>• <strong>RESTful API:</strong> Easy integration with modern applications</li>
-                          <li>• <strong>Access Control:</strong> Privacy-compliant data access</li>
-                        </ul>
-                      </div>
-                      <div className="space-y-2">
-                        <h4 className="font-semibold text-blue-900 dark:text-blue-100">WHOIS Limitations:</h4>
-                        <ul className="space-y-1 text-sm">
-                          <li>• <strong>Unstructured Text:</strong> Difficult to parse automatically</li>
-                          <li>• <strong>Protocol Variations:</strong> Inconsistent implementations</li>
-                          <li>• <strong>Limited Security:</strong> No built-in access controls</li>
-                          <li>• <strong>Legacy Format:</strong> Designed for 1980s technology</li>
-                        </ul>
-                      </div>
+            </CardHeader>
+            <CardBody>
+              <div className="space-y-3">
+                {result.emailSecurity.spf && (
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium">SPF Record</span>
+                      <Chip 
+                        size="sm" 
+                        color={result.emailSecurity.spf !== "Not found" ? "success" : "warning"}
+                        variant="dot"
+                      >
+                        {result.emailSecurity.spf !== "Not found" ? "Configured" : "Missing"}
+                      </Chip>
                     </div>
-                    <p className="pt-2 text-xs text-blue-700 dark:text-blue-300">
-                      RDAP is the official successor to WHOIS, recommended by ICANN and implemented by major registries worldwide.
-                    </p>
+                    {result.emailSecurity.spf !== "Not found" && (
+                      <Code size="sm" className="text-xs block">
+                        {result.emailSecurity.spf}
+                      </Code>
+                    )}
+                  </div>
+                )}
+
+                {result.emailSecurity.dmarc && (
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium">DMARC Policy</span>
+                      <Chip 
+                        size="sm" 
+                        color={result.emailSecurity.dmarc !== "Not found" ? "success" : "warning"}
+                        variant="dot"
+                      >
+                        {result.emailSecurity.dmarc !== "Not found" ? "Configured" : "Missing"}
+                      </Chip>
+                    </div>
+                    {result.emailSecurity.dmarc !== "Not found" && (
+                      <Code size="sm" className="text-xs block">
+                        {result.emailSecurity.dmarc}
+                      </Code>
+                    )}
+                  </div>
+                )}
+
+                {result.emailSecurity.dkim && (
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium">DKIM</span>
+                      <Chip 
+                        size="sm" 
+                        color={result.emailSecurity.dkim !== "Not found" ? "success" : "warning"}
+                        variant="dot"
+                      >
+                        {result.emailSecurity.dkim !== "Not found" ? "Configured" : "Missing"}
+                      </Chip>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CardBody>
+          </Card>
+        )}
+
+        {/* SSL Certificate */}
+        {result.ssl && (
+          <Card>
+            <CardHeader>
+              <div className="flex gap-3">
+                <Avatar 
+                  icon={<Lock className="w-5 h-5" />} 
+                  className={result.ssl.error ? 
+                    "bg-danger/10 text-danger" : 
+                    "bg-success/10 text-success"
+                  }
+                />
+                <div>
+                  <p className="text-md font-semibold">SSL Certificate</p>
+                  <p className="text-small text-default-500">
+                    {result.ssl.error ? "Issues Detected" : "Valid Certificate"}
+                  </p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardBody>
+              {result.ssl.error ? (
+                <Chip color="danger" variant="flat">
+                  {result.ssl.error}
+                </Chip>
+              ) : (
+                <div className="space-y-2">
+                  {result.ssl.issuer && (
+                    <div className="flex justify-between">
+                      <span className="text-sm text-default-500">Issuer</span>
+                      <span className="text-sm">{result.ssl.issuer}</span>
+                    </div>
+                  )}
+                  {result.ssl.validFrom && (
+                    <div className="flex justify-between">
+                      <span className="text-sm text-default-500">Valid From</span>
+                      <span className="text-sm">{new Date(result.ssl.validFrom).toLocaleDateString()}</span>
+                    </div>
+                  )}
+                  {result.ssl.validTo && (
+                    <div className="flex justify-between">
+                      <span className="text-sm text-default-500">Valid To</span>
+                      <span className="text-sm">{new Date(result.ssl.validTo).toLocaleDateString()}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </CardBody>
+          </Card>
+        )}
+      </div>
+    );
+  };
+
+  const renderContactsTab = () => {
+    if (!result?.entities) return null;
+
+    return (
+      <div className="space-y-4">
+        {result.entities.map((entity, idx) => (
+          <Card key={idx}>
+            <CardHeader>
+              <div className="flex gap-3">
+                <Avatar 
+                  icon={<User className="w-5 h-5" />} 
+                  className="bg-default-100 text-default-600"
+                />
+                <div className="flex-1">
+                  <p className="text-md font-semibold">
+                    {entity.roles?.join(", ") || "Contact"}
+                  </p>
+                  <p className="text-small text-default-500">Handle: {entity.handle}</p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardBody>
+              {entity.vcardArray && (
+                <div className="space-y-2">
+                  {entity.vcardArray[1]?.map((item, i) => {
+                    const [type, , , value] = item;
+                    if (!value || !type) return null;
+                    
+                    const iconMap = {
+                      fn: <User className="w-4 h-4" />,
+                      org: <Building className="w-4 h-4" />,
+                      email: <Mail className="w-4 h-4" />,
+                      tel: <Phone className="w-4 h-4" />,
+                      adr: <MapPin className="w-4 h-4" />,
+                    };
+                    
+                    return (
+                      <div key={i} className="flex items-center gap-3">
+                        <span className="text-default-400">
+                          {iconMap[type] || <Info className="w-4 h-4" />}
+                        </span>
+                        <span className="text-sm">
+                          {Array.isArray(value) ? value.join(", ") : value}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardBody>
+          </Card>
+        ))}
+      </div>
+    );
+  };
+
+  const renderRawDataTab = () => {
+    if (!result) return null;
+
+    return (
+      <Card>
+        <CardHeader className="flex justify-between">
+          <div className="flex gap-3">
+            <Avatar 
+              icon={<Database className="w-5 h-5" />} 
+              className="bg-default-100 text-default-600"
+            />
+            <div>
+              <p className="text-md font-semibold">Raw RDAP Response</p>
+              <p className="text-small text-default-500">Complete JSON data</p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant="flat"
+              onPress={() => copyToClipboard(JSON.stringify(result, null, 2), "raw")}
+              startContent={copiedField === "raw" ? 
+                <CheckCircle className="w-4 h-4" /> : 
+                <Copy className="w-4 h-4" />
+              }
+            >
+              Copy
+            </Button>
+            <Button
+              size="sm"
+              variant="flat"
+              color="primary"
+              onPress={() => {
+                const blob = new Blob([JSON.stringify(result, null, 2)], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `rdap-${result.ldhName || result.handle || "result"}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+              startContent={<Download className="w-4 h-4" />}
+            >
+              Export
+            </Button>
+          </div>
+        </CardHeader>
+        <CardBody>
+          <ScrollShadow className="max-h-[500px]">
+            <Code className="text-xs">
+              <pre>{JSON.stringify(result, null, 2)}</pre>
+            </Code>
+          </ScrollShadow>
+        </CardBody>
+      </Card>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Navbar */}
+      <Navbar maxWidth="full" className="border-b border-divider">
+        <NavbarBrand>
+          <div className="flex items-center gap-3">
+            <div className="bg-primary/10 p-2 rounded-lg">
+              <Zap className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <p className="font-bold text-lg">RDAP Lookup</p>
+              <p className="text-tiny text-default-500">Modern Domain Intelligence</p>
+            </div>
+          </div>
+        </NavbarBrand>
+        
+        <NavbarContent justify="end">
+          <NavbarItem>
+            <Button
+              as={Link}
+              isExternal
+              href="https://github.com/gensecaihq/rdap-lookup"
+              variant="flat"
+              size="sm"
+              startContent={<Github className="w-4 h-4" />}
+            >
+              Star on GitHub
+            </Button>
+          </NavbarItem>
+          <NavbarItem>
+            <Switch
+              defaultSelected={isDarkMode}
+              size="sm"
+              color="secondary"
+              onValueChange={toggleDarkMode}
+              thumbIcon={({ isSelected }) =>
+                isSelected ? <Moon className="w-3 h-3" /> : <Sun className="w-3 h-3" />
+              }
+            />
+          </NavbarItem>
+        </NavbarContent>
+      </Navbar>
+
+      <div className="container mx-auto px-4 py-6 max-w-7xl">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Sidebar - Search Form */}
+          <div className="lg:col-span-4">
+            <Card className="sticky top-6">
+              <CardHeader>
+                <div className="flex gap-3 items-center">
+                  <div className="bg-primary/10 p-2 rounded-lg">
+                    <Search className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-md font-semibold">RDAP Query</p>
+                    <p className="text-small text-default-500">Enter domain, IP, or ASN</p>
                   </div>
                 </div>
-                
-                <footer className="text-xs text-center text-gray-600 dark:text-gray-400" role="contentinfo">
-                  <p className="mb-2">
-                    <strong>Trusted Data Sources:</strong> Powered by{" "}
-                    <a href="https://rdap.org" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600" title="Official RDAP data source">
-                      rdap.org
-                    </a>{" "}
-                    and{" "}
-                    <a href="https://iana.org" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600" title="Internet Assigned Numbers Authority">
-                      iana.org
-                    </a>{" "}
-                    • Compliant with ICANN standards and global registry policies
-                  </p>
-                  <p className="mb-2">
-                    <strong>Features:</strong> Domain lookup, IP lookup, ASN lookup, DNSSEC verification, SSL analysis, 
-                    email security checks (SPF, DMARC, DKIM), nameserver analysis, expiry monitoring, JSON export
-                  </p>
-                  <p>
-                    Free open source tool hosted on{" "}
-                    <a href="https://vercel.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600" title="Vercel hosting platform">
-                      Vercel
-                    </a>{" "}
-                    •{" "}
-                    <a href="https://github.com/gensecaihq/rdap-lookup" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600" title="View source code and contribute">
-                      Contribute on GitHub
-                    </a>{" "}
-                    • Built with Next.js, React, and Tailwind CSS
-                  </p>
-                </footer>
-              </aside>
+              </CardHeader>
+              <Divider />
+              <CardBody>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <Select
+                    label="Query Type"
+                    placeholder="Select type"
+                    selectedKeys={[type]}
+                    onSelectionChange={(keys) => setType(Array.from(keys)[0])}
+                    startContent={<Globe className="w-4 h-4 text-default-400" />}
+                    isDisabled={result !== null}
+                  >
+                    <SelectItem key="domain" value="domain">Domain</SelectItem>
+                    <SelectItem key="ip" value="ip">IP Address</SelectItem>
+                    <SelectItem key="autnum" value="autnum">ASN (Autonomous System)</SelectItem>
+                    <SelectItem key="entity" value="entity">Entity</SelectItem>
+                  </Select>
+
+                  <Input
+                    label="Query Value"
+                    placeholder={
+                      type === "domain" ? "example.com" :
+                      type === "ip" ? "8.8.8.8" :
+                      type === "autnum" ? "AS15169" :
+                      "HANDLE"
+                    }
+                    value={objectValue}
+                    onValueChange={setObjectValue}
+                    startContent={
+                      type === "domain" ? <Globe className="w-4 h-4 text-default-400" /> :
+                      type === "ip" ? <Network className="w-4 h-4 text-default-400" /> :
+                      type === "autnum" ? <Database className="w-4 h-4 text-default-400" /> :
+                      <Key className="w-4 h-4 text-default-400" />
+                    }
+                    isRequired
+                    isDisabled={result !== null}
+                    errorMessage={error}
+                  />
+
+                  {type === "domain" && (
+                    <Input
+                      label="DKIM Selector"
+                      placeholder="Optional (e.g., google)"
+                      value={dkimSelector}
+                      onValueChange={setDkimSelector}
+                      startContent={<Mail className="w-4 h-4 text-default-400" />}
+                      isDisabled={result !== null}
+                    />
+                  )}
+
+                  <div className="flex justify-center py-2">
+                    <HCaptcha
+                      key={captchaKey}
+                      sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY}
+                      onVerify={(token) => setCaptchaToken(token)}
+                      onExpire={() => setCaptchaToken("")}
+                      onError={() => setCaptchaToken("")}
+                      ref={captchaRef}
+                      theme={isDarkMode ? "dark" : "light"}
+                    />
+                  </div>
+
+                  {!result ? (
+                    <Button
+                      type="submit"
+                      color="primary"
+                      variant="shadow"
+                      className="w-full"
+                      isLoading={isLoading}
+                      isDisabled={!captchaToken || !objectValue}
+                      startContent={!isLoading && <Search className="w-4 h-4" />}
+                    >
+                      {isLoading ? "Analyzing..." : "Lookup RDAP Data"}
+                    </Button>
+                  ) : (
+                    <Button
+                      color="secondary"
+                      variant="flat"
+                      className="w-full"
+                      onPress={resetForm}
+                      isLoading={isResetting}
+                      startContent={!isResetting && <Search className="w-4 h-4" />}
+                    >
+                      New Query
+                    </Button>
+                  )}
+                </form>
+
+                {error && (
+                  <Card className="mt-4 bg-danger-50 dark:bg-danger-100/10">
+                    <CardBody>
+                      <div className="flex gap-2 items-center">
+                        <AlertCircle className="w-4 h-4 text-danger" />
+                        <p className="text-sm text-danger">{error}</p>
+                      </div>
+                    </CardBody>
+                  </Card>
+                )}
+              </CardBody>
+            </Card>
+
+            {/* Info Card */}
+            {!result && (
+              <Card className="mt-4">
+                <CardBody>
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
+                      <Info className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium">What is RDAP?</p>
+                        <p className="text-xs text-default-500 mt-1">
+                          RDAP (Registration Data Access Protocol) is the modern replacement for WHOIS, 
+                          providing structured, standardized domain registration data with better privacy controls.
+                        </p>
+                      </div>
+                    </div>
+                    <Divider />
+                    <div className="space-y-1">
+                      <p className="text-xs text-default-500">✓ Structured JSON responses</p>
+                      <p className="text-xs text-default-500">✓ Internationalization support</p>
+                      <p className="text-xs text-default-500">✓ Built-in access controls</p>
+                      <p className="text-xs text-default-500">✓ RESTful API design</p>
+                    </div>
+                  </div>
+                </CardBody>
+              </Card>
             )}
           </div>
 
-          {/* Results Section */}
-          {hasQueryResult && result && (
-            <div className="lg:col-span-8">
-              <WhoisEquivalentDisplay data={result} objectType={type} />
-            </div>
-          )}
-        </div>
+          {/* Main Content Area */}
+          <div className="lg:col-span-8">
+            {result ? (
+              <div className="space-y-6">
+                {/* Quick Stats */}
+                {renderQuickStats()}
 
-        {/* Educational Footer for results view */}
-        {hasQueryResult && (
-          <footer className="mt-8 pt-8 border-t" role="contentinfo">
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-6">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2">
-                  <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
-                    <span className="text-2xl" aria-label="Rocket emoji">🚀</span>
-                    RDAP: The Modern Standard for Domain Intelligence
-                  </h3>
-                  <p className="text-sm text-blue-800 dark:text-blue-200 mb-4">
-                    You just experienced <strong>RDAP (Registration Data Access Protocol)</strong> - the modern successor to WHOIS. 
-                    Unlike legacy WHOIS text-based queries, RDAP provides structured, standardized, and privacy-compliant domain information.
-                  </p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                    <div>
-                      <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">Why RDAP is Better:</h4>
-                      <ul className="space-y-1 text-blue-700 dark:text-blue-300">
-                        <li>✅ Structured JSON responses</li>
-                        <li>✅ RESTful HTTP/HTTPS protocol</li>
-                        <li>✅ Internationalization support</li>
-                        <li>✅ Built-in privacy controls</li>
-                      </ul>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">WHOIS Limitations:</h4>
-                      <ul className="space-y-1 text-blue-700 dark:text-blue-300">
-                        <li>❌ Unstructured text output</li>
-                        <li>❌ Inconsistent formats</li>
-                        <li>❌ Limited Unicode support</li>
-                        <li>❌ No access control</li>
-                      </ul>
-                    </div>
-                  </div>
+                {/* Tabbed Content */}
+                <Card>
+                  <CardBody className="p-0">
+                    <Tabs 
+                      aria-label="RDAP Data" 
+                      color="primary"
+                      variant="underlined"
+                      selectedKey={activeTab}
+                      onSelectionChange={setActiveTab}
+                      classNames={{
+                        tabList: "gap-6 w-full relative rounded-none p-4 border-b border-divider",
+                        cursor: "w-full bg-primary",
+                        tab: "max-w-fit px-4 h-12",
+                        tabContent: "group-data-[selected=true]:text-primary"
+                      }}
+                    >
+                      <Tab
+                        key="overview"
+                        title={
+                          <div className="flex items-center gap-2">
+                            <Globe className="w-4 h-4" />
+                            <span>Overview</span>
+                          </div>
+                        }
+                      >
+                        <div className="p-4">
+                          {renderOverviewTab()}
+                        </div>
+                      </Tab>
+                      <Tab
+                        key="security"
+                        title={
+                          <div className="flex items-center gap-2">
+                            <Shield className="w-4 h-4" />
+                            <span>Security</span>
+                          </div>
+                        }
+                      >
+                        <div className="p-4">
+                          {renderSecurityTab()}
+                        </div>
+                      </Tab>
+                      <Tab
+                        key="contacts"
+                        title={
+                          <div className="flex items-center gap-2">
+                            <User className="w-4 h-4" />
+                            <span>Contacts</span>
+                          </div>
+                        }
+                      >
+                        <div className="p-4">
+                          {renderContactsTab()}
+                        </div>
+                      </Tab>
+                      <Tab
+                        key="raw"
+                        title={
+                          <div className="flex items-center gap-2">
+                            <Database className="w-4 h-4" />
+                            <span>Raw Data</span>
+                          </div>
+                        }
+                      >
+                        <div className="p-4">
+                          {renderRawDataTab()}
+                        </div>
+                      </Tab>
+                    </Tabs>
+                  </CardBody>
+                </Card>
+              </div>
+            ) : (
+              /* Welcome Screen */
+              <div className="flex flex-col items-center justify-center min-h-[500px] text-center">
+                <div className="bg-primary/10 p-6 rounded-full mb-6">
+                  <Search className="w-12 h-12 text-primary" />
                 </div>
-                <div className="lg:border-l lg:border-blue-200 dark:lg:border-blue-700 lg:pl-6">
-                  <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-3">Learn More</h4>
-                  <div className="space-y-2 text-sm">
-                    <a 
-                      href="https://www.icann.org/rdap" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="block text-blue-600 dark:text-blue-400 hover:underline"
-                    >
-                      📚 ICANN RDAP Documentation
-                    </a>
-                    <a 
-                      href="https://tools.ietf.org/html/rfc7483" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="block text-blue-600 dark:text-blue-400 hover:underline"
-                    >
-                      📋 RFC 7483 - RDAP Specification
-                    </a>
-                    <a 
-                      href="https://github.com/gensecaihq/rdap-lookup" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="block text-blue-600 dark:text-blue-400 hover:underline"
-                    >
-                      🌟 Star this project on GitHub
-                    </a>
-                  </div>
+                <h2 className="text-2xl font-bold mb-2">Ready to Query</h2>
+                <p className="text-default-500 max-w-md mb-6">
+                  Enter a domain, IP address, or ASN to get comprehensive RDAP information 
+                  including registration details, security status, and technical data.
+                </p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <Card className="bg-default-50 dark:bg-default-100/10">
+                    <CardBody className="p-4 text-center">
+                      <Globe className="w-6 h-6 text-primary mx-auto mb-2" />
+                      <p className="text-xs font-medium">Domain Lookup</p>
+                    </CardBody>
+                  </Card>
+                  <Card className="bg-default-50 dark:bg-default-100/10">
+                    <CardBody className="p-4 text-center">
+                      <Shield className="w-6 h-6 text-success mx-auto mb-2" />
+                      <p className="text-xs font-medium">Security Check</p>
+                    </CardBody>
+                  </Card>
+                  <Card className="bg-default-50 dark:bg-default-100/10">
+                    <CardBody className="p-4 text-center">
+                      <Server className="w-6 h-6 text-warning mx-auto mb-2" />
+                      <p className="text-xs font-medium">DNS Analysis</p>
+                    </CardBody>
+                  </Card>
+                  <Card className="bg-default-50 dark:bg-default-100/10">
+                    <CardBody className="p-4 text-center">
+                      <Database className="w-6 h-6 text-secondary mx-auto mb-2" />
+                      <p className="text-xs font-medium">Raw Data</p>
+                    </CardBody>
+                  </Card>
                 </div>
               </div>
-            </div>
-            
-            <div className="text-xs text-center text-gray-600 dark:text-gray-400">
-              <p className="mb-2">
-                <strong>Powered by:</strong>{" "}
-                <a href="https://rdap.org" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600">
-                  rdap.org
-                </a>{" "}
-                and{" "}
-                <a href="https://iana.org" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600">
-                  iana.org
-                </a>{" "}
-                • Built with Next.js and hosted on{" "}
-                <a href="https://vercel.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600">
-                  Vercel
-                </a>
-              </p>
-              <p>
-                Open source project •{" "}
-                <a href="https://github.com/gensecaihq/rdap-lookup" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600">
-                  Contribute on GitHub
-                </a>{" "}
-                • Made with ❤️ for the developer community
-              </p>
-            </div>
-          </footer>
-        )}
-      </main>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
-    </>
   );
 }
-

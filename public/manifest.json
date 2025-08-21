@@ -1,0 +1,64 @@
+{
+  "name": "RDAP Lookup Tool - Modern Domain Intelligence",
+  "short_name": "RDAP Lookup",
+  "description": "Modern RDAP lookup tool for domain, IP, and ASN queries with comprehensive security analysis",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#3B82F6",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["productivity", "utilities", "developer"],
+  "screenshots": [
+    {
+      "src": "/api/og?title=RDAP+Dashboard&description=Modern+Interface",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "icons": [
+    {
+      "src": "/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-32x32.png", 
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Domain Lookup",
+      "short_name": "Domain",
+      "description": "Quickly lookup domain information",
+      "url": "/?type=domain",
+      "icons": [
+        {
+          "src": "/favicon-32x32.png",
+          "sizes": "32x32"
+        }
+      ]
+    },
+    {
+      "name": "IP Lookup",
+      "short_name": "IP",
+      "description": "Quickly lookup IP information", 
+      "url": "/?type=ip",
+      "icons": [
+        {
+          "src": "/favicon-32x32.png",
+          "sizes": "32x32"
+        }
+      ]
+    }
+  ]
+}

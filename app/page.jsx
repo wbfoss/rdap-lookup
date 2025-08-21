@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
+import RdapResultDisplay from "@/components/RdapResultDisplay";
 
 // shadcn/ui components
 import { Button } from "@/components/ui/button";
@@ -16,214 +17,6 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 
-/**
- * Displays structured RDAP data in a comprehensive, user-friendly format.
- */
-function StructuredRdapData({ data }) {
-  const {
-    objectClassName,
-    handle,
-    ldhName,
-    startAddress,
-    endAddress,
-    entities,
-    events,
-    status,
-    nameservers,
-    secureDNS,
-    emailSecurity,
-    ssl,
-    rbl,
-  } = data;
-
-  // Helper to render a table row
-  const renderRow = (label, value) =>
-    value && (
-      <tr>
-        <td className="p-2 font-medium bg-gray-50 w-1/3">{label}</td>
-        <td className="p-2">{value}</td>
-      </tr>
-    );
-
-  // Helper to format dates
-  const formatDate = (dateString) =>
-    dateString ? new Date(dateString).toLocaleString() : "N/A";
-
-  return (
-    <div className="space-y-6">
-      {/* General Information */}
-      <div>
-        <h4 className="text-md font-semibold mb-2">General Information</h4>
-        <div className="rounded-md border dark:border-gray-700 overflow-hidden">
-          <table className="w-full text-sm">
-            <tbody>
-              {renderRow("Object Class", objectClassName)}
-              {renderRow("Handle", handle)}
-              {renderRow("Domain Name (LDH)", ldhName)}
-              {renderRow("Start Address", startAddress)}
-              {renderRow("End Address", endAddress)}
-              {renderRow("Status", status?.join(", "))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Important Dates */}
-      {Array.isArray(events) && events.length > 0 && (
-        <div>
-          <h4 className="text-md font-semibold mb-2">Important Dates</h4>
-          <div className="rounded-md border dark:border-gray-700 overflow-hidden">
-            <table className="w-full text-sm">
-              <tbody>
-                {events.map((event, idx) => (
-                  <tr key={idx}>
-                    <td className="p-2 font-medium bg-gray-50 w-1/3 capitalize dark:bg-gray-700">
-                      {event.eventAction}
-                    </td>
-                    <td className="p-2">{formatDate(event.eventDate)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* Entities (Contacts) */}
-      {Array.isArray(entities) && entities.length > 0 && (
-        <div>
-          <h4 className="text-md font-semibold mb-2">Entities / Contacts</h4>
-          <div className="space-y-4">
-            {entities.map((entity, idx) => (
-              <div
-                key={idx}
-                className="border border-gray-200 rounded p-3 text-sm dark:border-gray-700"
-              >
-                <p className="font-semibold capitalize">
-                  {entity.roles?.join(", ") || "Entity"}
-                </p>
-                <p>
-                  <strong>Handle:</strong> {entity.handle || "N/A"}
-                </p>
-                {entity.vcardArray && (
-                  <p>
-                    <strong>Name:</strong>{" "}
-                    {entity.vcardArray[1].find((item) => item[0] === "fn")?.[3] ||
-                      entity.vcardArray[1].find((item) => item[0] === "org")?.[3] ||
-                      "N/A"}
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Nameservers */}
-      {Array.isArray(nameservers) && nameservers.length > 0 && (
-        <div>
-          <h4 className="text-md font-semibold mb-2">Nameservers</h4>
-          <div className="rounded-md border dark:border-gray-700 overflow-hidden">
-            <ul className="list-disc pl-5 space-y-1 text-sm p-2">
-              {nameservers.map((ns, idx) => (
-                <li key={idx} className="p-1">{ns.ldhName}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      )}
-
-      {/* DNSSEC */}
-      {secureDNS && (
-        <div>
-          <h4 className="text-md font-semibold mb-2">DNSSEC</h4>
-          <div className="rounded-md border dark:border-gray-700 p-3 text-sm">
-            <p>
-              {secureDNS.delegationSigned
-                ? "Signed (Secure)"
-                : "Not Signed (Insecure)"}
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Email Security */}
-      {emailSecurity && (
-        <div>
-          <h4 className="text-md font-semibold mb-2">Email Security</h4>
-          <div className="rounded-md border dark:border-gray-700 overflow-hidden">
-            <table className="w-full text-sm">
-              <tbody>
-                {renderRow("SPF", emailSecurity.spf)}
-                {renderRow("DMARC", emailSecurity.dmarc)}
-                {renderRow("DKIM", emailSecurity.dkim)}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* SSL/TLS Certificate */}
-      {ssl && (
-        <div>
-          <h4 className="text-md font-semibold mb-2">SSL/TLS Certificate</h4>
-          {ssl.error ? (
-            <div className="rounded-md border border-red-300 bg-red-50 text-red-700 p-3 text-sm dark:border-red-700 dark:bg-red-900 dark:text-red-300">
-              <p>{ssl.error}</p>
-            </div>
-          ) : (
-            <div className="rounded-md border dark:border-gray-700 overflow-hidden">
-              <table className="w-full text-sm">
-                <tbody>
-                  {renderRow("Subject", ssl.subject?.CN)}
-                  {renderRow("Issuer", ssl.issuer?.CN)}
-                  {renderRow("Valid From", formatDate(ssl.valid_from))}
-                  {renderRow("Valid To", formatDate(ssl.valid_to))}
-                  {renderRow("Fingerprint", ssl.fingerprint)}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* RBL Status */}
-      {rbl && (
-        <div>
-          <h4 className="text-md font-semibold mb-2">RBL Status</h4>
-          {rbl.error ? (
-            <div className="rounded-md border border-red-300 bg-red-50 text-red-700 p-3 text-sm dark:border-red-700 dark:bg-red-900 dark:text-red-300">
-              <p>{rbl.error}</p>
-            </div>
-          ) : (
-            <div className="rounded-md border dark:border-gray-700 overflow-hidden">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr>
-                    <th className="p-2 font-medium bg-gray-50 text-left dark:bg-gray-700">RBL Provider</th>
-                    <th className="p-2 font-medium bg-gray-50 text-left dark:bg-gray-700">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {Object.entries(rbl).map(([provider, result]) => (
-                    <tr key={provider}>
-                      <td className="p-2">{provider}</td>
-                      <td
-                        className={`p-2 ${result.status === "Listed" ? "text-red-600 font-bold dark:text-red-400" : ""}`}>
-                        {result.status}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default function HomePage() {
   const [type, setType] = useState("domain");
   const [objectValue, setObjectValue] = useState("");
@@ -231,7 +24,6 @@ export default function HomePage() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [showJson, setShowJson] = useState(false);
   const [captchaToken, setCaptchaToken] = useState("");
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [hasQueryResult, setHasQueryResult] = useState(false); // New state for query result presence
@@ -294,7 +86,6 @@ export default function HomePage() {
     setResult(null);
     setError(null);
     setIsLoading(true);
-    setShowJson(false);
 
     try {
       const res = await fetch("/api/lookup", {
@@ -327,7 +118,6 @@ export default function HomePage() {
     setDkimSelector(""); // Clear DKIM selector on reset
     setResult(null);
     setError(null);
-    setShowJson(false);
     setCaptchaToken("");
     setHasQueryResult(false); // Reset to false
     if (captchaRef.current) {
@@ -445,33 +235,7 @@ export default function HomePage() {
 
       {/* Result Display */}
       {result && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl font-bold flex justify-between">
-              <span>Lookup Result</span>
-              <Button
-                variant="outline"
-                type="button"
-                onClick={() => setShowJson((prev) => !prev)}
-              >
-                {showJson ? "Hide JSON" : "Show JSON"}
-              </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="flex justify-center items-center p-8">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-              </div>
-            ) : showJson ? (
-              <pre className="text-sm bg-gray-100 p-2 rounded overflow-auto dark:bg-gray-900 dark:text-gray-200">
-                {JSON.stringify(result, null, 2)}
-              </pre>
-            ) : (
-              <StructuredRdapData data={result} />
-            )}
-          </CardContent>
-        </Card>
+        <RdapResultDisplay data={result} objectType={type} />
       )}
 
       {/* Footer Section */}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -58,6 +58,11 @@ export default function WhoisEquivalentDisplay({ data, objectType }) {
   const [copiedField, setCopiedField] = useState(null);
   const [showAdditionalInfo, setShowAdditionalInfo] = useState(false);
   const [showRawData, setShowRawData] = useState(false);
+  
+  // Refs for scrolling to sections
+  const additionalInfoRef = useRef(null);
+  const rawDataRef = useRef(null);
+  const actionButtonsRef = useRef(null);
 
   const copyToClipboard = (text, field) => {
     navigator.clipboard.writeText(text);
@@ -65,11 +70,108 @@ export default function WhoisEquivalentDisplay({ data, objectType }) {
     setTimeout(() => setCopiedField(null), 2000);
   };
 
+  // Scroll to section when toggled
+  useEffect(() => {
+    if (showAdditionalInfo && additionalInfoRef.current) {
+      setTimeout(() => {
+        additionalInfoRef.current.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 100);
+    }
+  }, [showAdditionalInfo]);
+
+  useEffect(() => {
+    if (showRawData && rawDataRef.current) {
+      setTimeout(() => {
+        rawDataRef.current.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 100);
+    }
+  }, [showRawData]);
+
+  // Toggle functions with scroll
+  const toggleAdditionalInfo = () => {
+    if (!showAdditionalInfo) {
+      setShowAdditionalInfo(true);
+    } else {
+      setShowAdditionalInfo(false);
+      // Scroll back to action buttons when hiding
+      setTimeout(() => {
+        actionButtonsRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      }, 100);
+    }
+  };
+
+  const toggleRawData = () => {
+    if (!showRawData) {
+      setShowRawData(true);
+    } else {
+      setShowRawData(false);
+      // Scroll back to action buttons when hiding
+      setTimeout(() => {
+        actionButtonsRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      }, 100);
+    }
+  };
+
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     const date = new Date(dateString);
     const now = new Date();
     const diffDays = Math.floor((date - now) / (1000 * 60 * 60 * 24));
+    const absDays = Math.abs(diffDays);
+    
+    // Format the relative time with better descriptions
+    let relative;
+    if (diffDays < 0) {
+      if (absDays === 1) {
+        relative = "Yesterday";
+      } else if (absDays < 7) {
+        relative = `${absDays} days ago`;
+      } else if (absDays < 30) {
+        relative = `${Math.floor(absDays / 7)} weeks ago`;
+      } else if (absDays < 365) {
+        relative = `${Math.floor(absDays / 30)} months ago`;
+      } else {
+        const years = Math.floor(absDays / 365);
+        const remainingDays = absDays % 365;
+        if (remainingDays < 30) {
+          relative = `${years} year${years > 1 ? 's' : ''} ago`;
+        } else {
+          relative = `${absDays.toLocaleString()} days ago`;
+        }
+      }
+    } else if (diffDays === 0) {
+      relative = "Today";
+    } else {
+      if (diffDays === 1) {
+        relative = "Tomorrow";
+      } else if (diffDays < 7) {
+        relative = `In ${diffDays} days`;
+      } else if (diffDays < 30) {
+        relative = `In ${Math.floor(diffDays / 7)} weeks`;
+      } else if (diffDays < 365) {
+        relative = `In ${Math.floor(diffDays / 30)} months`;
+      } else {
+        const years = Math.floor(diffDays / 365);
+        const remainingDays = diffDays % 365;
+        if (remainingDays < 30) {
+          relative = `In ${years} year${years > 1 ? 's' : ''}`;
+        } else {
+          relative = `In ${diffDays.toLocaleString()} days`;
+        }
+      }
+    }
     
     return {
       formatted: date.toLocaleDateString("en-US", {
@@ -77,11 +179,7 @@ export default function WhoisEquivalentDisplay({ data, objectType }) {
         month: "short",
         day: "numeric",
       }),
-      relative: diffDays < 0 
-        ? `${Math.abs(diffDays)} days ago`
-        : diffDays === 0 
-        ? "Today"
-        : `In ${diffDays} days`,
+      relative: relative,
       isExpired: date < now,
       isExpiringSoon: diffDays > 0 && diffDays <= 30,
     };
@@ -107,9 +205,6 @@ export default function WhoisEquivalentDisplay({ data, objectType }) {
               <Database className="w-7 h-7" />
               Domain Registration Data
             </h2>
-            <p className="text-blue-700 dark:text-blue-300 mt-1">
-              RDAP equivalent of traditional WHOIS information
-            </p>
           </div>
           <div className="text-right">
             <Badge variant="success" className="text-sm px-3 py-1">
@@ -202,15 +297,19 @@ export default function WhoisEquivalentDisplay({ data, objectType }) {
                     {data.events.slice(0, 3).map((event, idx) => {
                       const dateInfo = formatDate(event.eventDate);
                       return (
-                        <div key={idx} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded">
-                          <span className="text-sm font-medium capitalize">{event.eventAction}</span>
+                        <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                          <span className="text-sm font-medium capitalize text-gray-700 dark:text-gray-300">
+                            {event.eventAction.replace('registration', 'Registration').replace('expiration', 'Expiration').replace('last changed', 'Last Changed')}
+                          </span>
                           <div className="text-right">
-                            <div className="text-sm font-mono">{dateInfo.formatted}</div>
-                            <div className={`text-xs ${
-                              dateInfo.isExpired ? 'text-red-500' : 
-                              dateInfo.isExpiringSoon ? 'text-orange-500' : 'text-green-500'
+                            <div className={`text-base font-bold ${
+                              dateInfo.isExpired ? 'text-red-600 dark:text-red-400' : 
+                              dateInfo.isExpiringSoon ? 'text-orange-600 dark:text-orange-400' : 'text-green-600 dark:text-green-400'
                             }`}>
                               {dateInfo.relative}
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400 font-mono mt-0.5">
+                              {dateInfo.formatted}
                             </div>
                           </div>
                         </div>
@@ -415,73 +514,100 @@ export default function WhoisEquivalentDisplay({ data, objectType }) {
 
   // Action Buttons
   const renderActionButtons = () => (
-    <div className="flex flex-wrap gap-3 mb-6">
-      <Button
-        variant="outline"
-        onClick={() => setShowAdditionalInfo(!showAdditionalInfo)}
-        className="flex items-center gap-2"
-      >
-        {showAdditionalInfo ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-        {showAdditionalInfo ? "Hide" : "Show"} Additional Info
-      </Button>
+    <div ref={actionButtonsRef} className="sticky top-4 z-10 bg-white dark:bg-gray-900 p-4 rounded-lg shadow-lg border mb-6">
+      <div className="flex flex-wrap gap-3">
+        <Button
+          variant={showAdditionalInfo ? "default" : "outline"}
+          onClick={toggleAdditionalInfo}
+          className="flex items-center gap-2 transition-all"
+        >
+          {showAdditionalInfo ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+          {showAdditionalInfo ? "Hide" : "Show"} Additional Info
+        </Button>
+        
+        <Button
+          variant={showRawData ? "default" : "outline"}
+          onClick={toggleRawData}
+          className="flex items-center gap-2 transition-all"
+        >
+          {showRawData ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          {showRawData ? "Hide" : "Show"} Raw Data
+        </Button>
+        
+        <Button
+          variant="outline"
+          onClick={() => {
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `rdap-${data.ldhName || data.handle || "result"}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+          }}
+          className="flex items-center gap-2"
+        >
+          <Download className="w-4 h-4" />
+          Export JSON
+        </Button>
+        
+        <Button
+          variant="outline"
+          onClick={() => copyToClipboard(JSON.stringify(data, null, 2), "raw-data")}
+          className="flex items-center gap-2"
+        >
+          {copiedField === "raw-data" ? (
+            <CheckCircle2 className="w-4 h-4 text-green-500" />
+          ) : (
+            <Copy className="w-4 h-4" />
+          )}
+          Copy All Data
+        </Button>
+      </div>
       
-      <Button
-        variant="outline"
-        onClick={() => setShowRawData(!showRawData)}
-        className="flex items-center gap-2"
-      >
-        {showRawData ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-        {showRawData ? "Hide" : "Show"} Raw Data
-      </Button>
-      
-      <Button
-        variant="outline"
-        onClick={() => {
-          const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = `rdap-${data.ldhName || data.handle || "result"}.json`;
-          a.click();
-          URL.revokeObjectURL(url);
-        }}
-        className="flex items-center gap-2"
-      >
-        <Download className="w-4 h-4" />
-        Export JSON
-      </Button>
-      
-      <Button
-        variant="outline"
-        onClick={() => copyToClipboard(JSON.stringify(data, null, 2), "raw-data")}
-        className="flex items-center gap-2"
-      >
-        {copiedField === "raw-data" ? (
-          <CheckCircle2 className="w-4 h-4 text-green-500" />
-        ) : (
-          <Copy className="w-4 h-4" />
-        )}
-        Copy All Data
-      </Button>
+      {/* Visual indicators when sections are hidden */}
+      {(!showAdditionalInfo || !showRawData) && (
+        <div className="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1">
+          <Info className="w-3 h-3" />
+          <span>Click buttons above to reveal more information</span>
+        </div>
+      )}
     </div>
   );
 
   // Raw Data Section
   const renderRawDataSection = () => (
     showRawData && (
-      <Card className="mb-6 shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Database className="w-5 h-5" />
-            Raw RDAP Response
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <pre className="text-xs bg-gray-100 dark:bg-gray-900 p-4 rounded-lg overflow-auto max-h-96 border font-mono">
-            {JSON.stringify(data, null, 2)}
-          </pre>
-        </CardContent>
-      </Card>
+      <div ref={rawDataRef} className="mb-6 animate-fade-in">
+        <Card className="shadow-lg border-2 border-blue-500">
+          <CardHeader className="bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-800 dark:to-blue-950/30">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Database className="w-5 h-5" />
+              Raw RDAP Response
+              <Badge variant="outline" className="ml-2">JSON Format</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <pre className="text-xs bg-gray-100 dark:bg-gray-900 p-4 rounded-lg overflow-auto max-h-96 border font-mono">
+              {JSON.stringify(data, null, 2)}
+            </pre>
+            <div className="mt-4 flex justify-end gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => copyToClipboard(JSON.stringify(data, null, 2), "raw-json")}
+              >
+                {copiedField === "raw-json" ? (
+                  <CheckCircle2 className="w-4 h-4 text-green-500" />
+                ) : (
+                  <Copy className="w-4 h-4" />
+                )}
+                <span className="ml-2">Copy JSON</span>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     )
   );
 
@@ -491,10 +617,12 @@ export default function WhoisEquivalentDisplay({ data, objectType }) {
       {renderWhoisEquivalentSection()}
       
       {showAdditionalInfo && (
-        <div className="mt-8">
+        <div ref={additionalInfoRef} className="mt-8 animate-fade-in">
           <div className="flex items-center gap-2 mb-6">
             <div className="h-0.5 bg-gradient-to-r from-gray-300 to-transparent flex-1"></div>
-            <span className="text-sm font-medium text-gray-600 dark:text-gray-400 px-3">Additional Security & Technical Information</span>
+            <span className="text-sm font-medium text-gray-600 dark:text-gray-400 px-3 bg-white dark:bg-gray-900">
+              Additional Security & Technical Information
+            </span>
             <div className="h-0.5 bg-gradient-to-l from-gray-300 to-transparent flex-1"></div>
           </div>
           {renderAdditionalInfoSection()}

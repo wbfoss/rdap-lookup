@@ -1,4 +1,5 @@
 import '@/styles/globals.css';
+import { Analytics } from '@vercel/analytics/next';
 
 export const metadata = {
   title: 'RDAP Lookup Tool - Modern Domain Intelligence & WHOIS Alternative',
@@ -140,6 +141,7 @@ export default function RootLayout({ children }) {
       </head>
       <body className="min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white antialiased">
         {children}
+        <Analytics />
       </body>
     </html>
   );

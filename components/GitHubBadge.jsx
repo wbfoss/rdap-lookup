@@ -72,11 +72,6 @@ export default function GitHubBadge({ owner = "gensecaihq", repo = "rdap-lookup"
             🚀 Open source RDAP lookup tool • Built with{" "}
             <span className="text-blue-600 dark:text-blue-400 font-semibold">Next.js</span>
           </p>
-          {!loading && !error && typeof stars === 'number' && (
-            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-              Join <span className="font-semibold text-gray-700 dark:text-gray-300">{stars}</span> developers who starred this project
-            </p>
-          )}
         </div>
       </div>
     </div>

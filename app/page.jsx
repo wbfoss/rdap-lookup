@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
-import ImprovedRdapDisplay from "@/components/ImprovedRdapDisplay";
-import { Github, Star } from "lucide-react";
+import WhoisEquivalentDisplay from "@/components/WhoisEquivalentDisplay";
+import GitHubBadge from "@/components/GitHubBadge";
 
 // shadcn/ui components
 import { Button } from "@/components/ui/button";
@@ -26,11 +26,16 @@ export default function HomePage() {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [captchaToken, setCaptchaToken] = useState("");
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true);
   const [hasQueryResult, setHasQueryResult] = useState(false); // New state for query result presence
   const [captchaKey, setCaptchaKey] = useState(Date.now()); // Key to force hCaptcha re-render
   const [isResetting, setIsResetting] = useState(false); // Track reset state
   const captchaRef = useRef(null);
+
+  // Apply dark mode by default on component mount
+  useEffect(() => {
+    document.documentElement.classList.add("dark");
+  }, []);
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
@@ -146,43 +151,47 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      {/* GitHub Badge */}
-      <div className="bg-white dark:bg-gray-900 border-b shadow-sm">
-        <div className="container mx-auto px-4 py-3 max-w-6xl">
-          <div className="flex items-center justify-center">
-            <a
-              href="https://github.com/gensecaihq/rdap-lookup"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 dark:bg-gray-800 text-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-700 transition-colors group"
-            >
-              <Github className="w-5 h-5" />
-              <span className="font-medium">Star on GitHub</span>
-              <div className="flex items-center gap-1 px-2 py-1 bg-gray-800 dark:bg-gray-700 rounded text-sm">
-                <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                <span className="text-gray-300">⭐</span>
-              </div>
-            </a>
-          </div>
-        </div>
-      </div>
-      
-      <main className="container mx-auto px-4 py-6 max-w-6xl">
+    <>
+      {/* SEO and Accessibility */}
+      <header className="sr-only">
+        <h1>RDAP Lookup Tool - Modern Domain Intelligence and WHOIS Alternative</h1>
+        <p>
+          Free, fast, and comprehensive RDAP lookup service for domains, IP addresses, and ASN queries. 
+          Get structured domain registration data, security analysis, and privacy-compliant information 
+          that replaces traditional WHOIS lookups with modern JSON-based responses.
+        </p>
+      </header>
+
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+        {/* GitHub Badge with Live Star Count */}
+        <GitHubBadge owner="gensecaihq" repo="rdap-lookup" />
+        
+        <main className="container mx-auto px-4 py-6 max-w-6xl" role="main">
         <div className={`${hasQueryResult ? 'grid grid-cols-1 lg:grid-cols-12 gap-8' : 'max-w-2xl mx-auto'}`}>
           {/* Form Section */}
           <div className={hasQueryResult ? 'lg:col-span-4' : 'w-full'}>
-            <Card className="mb-6 shadow-lg border-0">
-              <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
-                <CardTitle className="text-xl font-bold flex justify-between items-center">
-                  <span>RDAP Lookup Tool v2.0</span>
-                  <Button variant="outline" onClick={toggleDarkMode} className="border-white/20 text-white hover:bg-white/10">
+            <Card className="mb-6 shadow-2xl border-0 overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white">
+                <CardTitle className="text-2xl font-bold flex justify-between items-center" role="banner">
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl" aria-label="Search icon">🔍</span>
+                    <div>
+                      <h2 className="text-2xl font-bold">RDAP Lookup Tool</h2>
+                      <div className="text-sm opacity-90 font-normal">Modern Domain Intelligence & WHOIS Alternative</div>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    onClick={toggleDarkMode} 
+                    className="border-white/30 text-white hover:bg-white/20 backdrop-blur-sm"
+                    size="sm"
+                  >
                     {isDarkMode ? "🌞" : "🌙"}
                   </Button>
                 </CardTitle>
               </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+        <CardContent className="p-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* RDAP Type */}
             <div>
               <Label htmlFor="type" className="mb-2 block text-sm font-medium">
@@ -252,24 +261,42 @@ export default function HomePage() {
               />
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 mt-6">
               {!hasQueryResult ? (
                 <Button
                   type="submit"
                   disabled={!type || !objectValue || isLoading || !captchaToken}
-                  className="w-full"
+                  className="w-full h-14 text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 rounded-xl"
                 >
-                  {isLoading ? "Checking..." : "Lookup"}
+                  {isLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-3"></div>
+                      <span className="text-base">Analyzing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="mr-2">🔍</span>
+                      <span>Start RDAP Lookup</span>
+                    </>
+                  )}
                 </Button>
               ) : (
-                <Button type="button" onClick={resetForm} disabled={isResetting} className="w-full">
+                <Button 
+                  type="button" 
+                  onClick={resetForm} 
+                  disabled={isResetting} 
+                  className="w-full h-12 text-base font-semibold bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 rounded-xl"
+                >
                   {isResetting ? (
                     <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                       Resetting...
                     </>
                   ) : (
-                    "Make Another Query"
+                    <>
+                      <span className="mr-2">✨</span>
+                      Make Another Query
+                    </>
                   )}
                 </Button>
               )}
@@ -287,12 +314,12 @@ export default function HomePage() {
               </div>
             )}
 
-            {/* Footer Section */}
+            {/* Educational Content Section */}
             {!hasQueryResult && (
-              <div className="mt-8">
+              <aside className="mt-8" role="complementary">
                 <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-6 mb-6">
                   <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-3">
-                    Why RDAP Instead of WHOIS?
+                    Why RDAP Instead of WHOIS? The Future of Domain Lookups
                   </h3>
                   <div className="space-y-3 text-sm text-blue-800 dark:text-blue-200">
                     <p>
@@ -324,49 +351,55 @@ export default function HomePage() {
                   </div>
                 </div>
                 
-                <div className="text-xs text-center text-gray-600 dark:text-gray-400">
+                <footer className="text-xs text-center text-gray-600 dark:text-gray-400" role="contentinfo">
                   <p className="mb-2">
-                    <strong>Data Sources:</strong> Special thanks to{" "}
-                    <a href="https://rdap.org" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600">
+                    <strong>Trusted Data Sources:</strong> Powered by{" "}
+                    <a href="https://rdap.org" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600" title="Official RDAP data source">
                       rdap.org
                     </a>{" "}
                     and{" "}
-                    <a href="https://iana.org" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600">
+                    <a href="https://iana.org" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600" title="Internet Assigned Numbers Authority">
                       iana.org
-                    </a>
+                    </a>{" "}
+                    • Compliant with ICANN standards and global registry policies
+                  </p>
+                  <p className="mb-2">
+                    <strong>Features:</strong> Domain lookup, IP lookup, ASN lookup, DNSSEC verification, SSL analysis, 
+                    email security checks (SPF, DMARC, DKIM), nameserver analysis, expiry monitoring, JSON export
                   </p>
                   <p>
-                    Open source project hosted on{" "}
-                    <a href="https://vercel.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600">
+                    Free open source tool hosted on{" "}
+                    <a href="https://vercel.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600" title="Vercel hosting platform">
                       Vercel
                     </a>{" "}
                     •{" "}
-                    <a href="https://github.com/gensecaihq/rdap-lookup" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600">
+                    <a href="https://github.com/gensecaihq/rdap-lookup" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600" title="View source code and contribute">
                       Contribute on GitHub
-                    </a>
+                    </a>{" "}
+                    • Built with Next.js, React, and Tailwind CSS
                   </p>
-                </div>
-              </div>
+                </footer>
+              </aside>
             )}
           </div>
 
           {/* Results Section */}
           {hasQueryResult && result && (
             <div className="lg:col-span-8">
-              <ImprovedRdapDisplay data={result} objectType={type} />
+              <WhoisEquivalentDisplay data={result} objectType={type} />
             </div>
           )}
         </div>
 
-        {/* Footer for results view */}
+        {/* Educational Footer for results view */}
         {hasQueryResult && (
-          <div className="mt-8 pt-8 border-t">
+          <footer className="mt-8 pt-8 border-t" role="contentinfo">
             <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-6">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2">
                   <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
-                    <span className="text-2xl">🚀</span>
-                    RDAP: The Future of Domain Lookups
+                    <span className="text-2xl" aria-label="Rocket emoji">🚀</span>
+                    RDAP: The Modern Standard for Domain Intelligence
                   </h3>
                   <p className="text-sm text-blue-800 dark:text-blue-200 mb-4">
                     You just experienced <strong>RDAP (Registration Data Access Protocol)</strong> - the modern successor to WHOIS. 
@@ -448,10 +481,11 @@ export default function HomePage() {
                 • Made with ❤️ for the developer community
               </p>
             </div>
-          </div>
+          </footer>
         )}
       </main>
     </div>
+    </>
   );
 }
 

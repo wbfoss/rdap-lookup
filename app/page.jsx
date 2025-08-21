@@ -41,7 +41,7 @@ import {
   ModalBody,
   ModalFooter,
   useDisclosure
-} from "@nextui-org/react";
+} from "@heroui/react";
 import { 
   Search,
   Globe,

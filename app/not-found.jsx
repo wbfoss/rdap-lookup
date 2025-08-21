@@ -1,4 +1,4 @@
-import { Button, Card, CardBody } from '@nextui-org/react';
+import { Button, Card, CardBody } from '@heroui/react';
 import { Home, Search } from 'lucide-react';
 import Link from 'next/link';
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Button, Card, CardBody } from '@nextui-org/react';
+import { Button, Card, CardBody } from '@heroui/react';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 
 export default function Error({ error, reset }) {

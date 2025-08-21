@@ -1,7 +1,7 @@
 {
   "name": "rdap-lookup",
   "version": "1.0.0",
-  "description": "A production-level RDAP lookup tool using Next.js App Router, Tailwind, and shadcn/ui.",
+  "description": "A production-level RDAP lookup tool using Next.js App Router, Tailwind, and HeroUI.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@hcaptcha/react-hcaptcha": "^1.12.0",
-    "@nextui-org/react": "^2.6.11",
+    "@heroui/react": "^2.8.2",
     "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-collapsible": "^1.0.3",
     "@radix-ui/react-dialog": "^1.0.5",
@@ -41,8 +41,8 @@
   "keywords": [
     "rdap",
     "nextjs",
-    "app-router",
-    "shadcn",
+    "app-router", 
+    "heroui",
     "tailwind",
     "rate-limiting"
   ],

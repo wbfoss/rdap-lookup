@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { X, Target, AlertTriangle, CheckCircle, Globe, Clock, Shield, Database, Search, Eye, Zap, Server, Signal } from "lucide-react";
+import { safeJsonParse } from "../../utils/security-tools";
 
 export default function DomainParkingAnalysis({ onClose }) {
   const [domain, setDomain] = useState('');
@@ -86,7 +87,7 @@ export default function DomainParkingAnalysis({ onClose }) {
       // Check DNS records
       const dnsResponse = await fetch(`https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=A`);
       if (dnsResponse.ok) {
-        const dnsData = await dnsResponse.json();
+        const dnsData = await safeJsonParse(dnsResponse);
         if (dnsData.Answer) {
           analysis.technical_analysis.dns_analysis.a_records = dnsData.Answer.map(record => record.data);
         }
@@ -95,7 +96,7 @@ export default function DomainParkingAnalysis({ onClose }) {
       // Check nameservers
       const nsResponse = await fetch(`https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=NS`);
       if (nsResponse.ok) {
-        const nsData = await nsResponse.json();
+        const nsData = await safeJsonParse(nsResponse);
         if (nsData.Answer) {
           analysis.technical_analysis.dns_analysis.nameservers = nsData.Answer.map(record => record.data);
           
@@ -181,7 +182,7 @@ export default function DomainParkingAnalysis({ onClose }) {
         try {
           const rdapResponse = await fetch(`/api/lookup?query=${encodeURIComponent(domain)}&type=domain`);
           if (rdapResponse.ok) {
-            const rdapData = await rdapResponse.json();
+            const rdapData = await safeJsonParse(rdapResponse);
             const registrationEvent = rdapData.events?.find(e => e.eventAction === 'registration');
             if (registrationEvent) {
               const ageInDays = Math.floor((new Date() - new Date(registrationEvent.eventDate)) / (1000 * 60 * 60 * 24));

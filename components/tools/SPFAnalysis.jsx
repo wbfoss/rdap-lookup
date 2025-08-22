@@ -67,7 +67,13 @@ export default function SPFAnalysis({ onClose }) {
         throw new Error('Failed to fetch DNS records');
       }
       
-      const dnsData = await response.json();
+      // Check if response has content before parsing JSON
+      const responseText = await response.text();
+      if (!responseText.trim()) {
+        throw new Error('Empty response from DNS server');
+      }
+      
+      const dnsData = JSON.parse(responseText);
       
       // Find SPF record among TXT records
       let spfRecord = null;
@@ -92,7 +98,9 @@ export default function SPFAnalysis({ onClose }) {
           try {
             const altResponse = await fetch(`https://dns.google/resolve?name=${encodeURIComponent(checkDomain)}&type=TXT`);
             if (altResponse.ok) {
-              const altData = await altResponse.json();
+              const altResponseText = await altResponse.text();
+              if (!altResponseText.trim()) continue;
+              const altData = JSON.parse(altResponseText);
               if (altData.Answer) {
                 const altSpf = altData.Answer.find(record => 
                   record.data && record.data.includes('v=spf1')

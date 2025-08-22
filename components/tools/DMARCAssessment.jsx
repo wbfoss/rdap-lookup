@@ -47,7 +47,13 @@ export default function DMARCAssessment({ onClose }) {
         throw new Error('Failed to fetch DNS records');
       }
       
-      const dnsData = await response.json();
+      // Check if response has content before parsing JSON
+      const responseText = await response.text();
+      if (!responseText.trim()) {
+        throw new Error('Empty response from DNS server');
+      }
+      
+      const dnsData = JSON.parse(responseText);
       
       if (dnsData.Status !== 0) {
         throw new Error(`DNS query failed with status: ${dnsData.Status}`);

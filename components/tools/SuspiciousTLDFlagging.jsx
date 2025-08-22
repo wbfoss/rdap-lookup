@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { AlertTriangle, Shield, Globe, Info, CheckCircle, XCircle } from 'lucide-react';
+import { safeJsonParse } from "../../utils/security-tools";
 
 export default function SuspiciousTLDFlagging({ onClose }) {
   const [domain, setDomain] = useState('');
@@ -77,7 +78,7 @@ export default function SuspiciousTLDFlagging({ onClose }) {
   const checkDomainDetails = async (domainName) => {
     try {
       const response = await fetch(`/api/lookup?query=${encodeURIComponent(domainName)}&type=domain`);
-      const data = await response.json();
+      const data = await safeJsonParse(response);
       
       if (response.ok && data) {
         // Extract additional risk indicators

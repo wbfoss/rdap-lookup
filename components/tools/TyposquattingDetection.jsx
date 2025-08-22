@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Search, AlertTriangle, Shield, Globe, Copy, ExternalLink } from 'lucide-react';
+import { safeJsonParse } from "../../utils/security-tools";
 
 export default function TyposquattingDetection({ onClose }) {
   const [domain, setDomain] = useState('');
@@ -110,7 +111,7 @@ export default function TyposquattingDetection({ onClose }) {
       const batchPromises = batch.map(async (variation) => {
         try {
           const response = await fetch(`/api/lookup?query=${encodeURIComponent(variation.domain)}&type=domain`);
-          const data = await response.json();
+          const data = await safeJsonParse(response);
           
           return {
             ...variation,

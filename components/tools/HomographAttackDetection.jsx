@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Eye, AlertTriangle, Shield, Globe, Copy, ExternalLink, Info } from 'lucide-react';
-import { validateDomain, generateHomographVariations, fetchRDAPData, rdapRateLimiter } from '../../utils/security-tools';
+import { validateDomain, generateHomographVariations, fetchRDAPData, rdapRateLimiter, safeJsonParse } from '../../utils/security-tools';
 import { ToolError, LoadingSpinner } from './ErrorBoundary';
 
 export default function HomographAttackDetection({ onClose }) {
@@ -127,7 +127,7 @@ export default function HomographAttackDetection({ onClose }) {
       const batchPromises = batch.map(async (variation) => {
         try {
           const response = await fetch(`/api/lookup?query=${encodeURIComponent(variation.domain)}&type=domain`);
-          const data = await response.json();
+          const data = await safeJsonParse(response);
           
           return {
             ...variation,

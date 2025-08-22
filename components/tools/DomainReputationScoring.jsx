@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Shield, AlertTriangle, CheckCircle, Info, TrendingUp, TrendingDown, Activity } from 'lucide-react';
+import { safeJsonParse } from "../../utils/security-tools";
 
 export default function DomainReputationScoring({ onClose }) {
   const [domain, setDomain] = useState('');
@@ -19,7 +20,7 @@ export default function DomainReputationScoring({ onClose }) {
 
     try {
       const response = await fetch(`/api/lookup?query=${encodeURIComponent(domain.trim())}&type=domain`);
-      const data = await response.json();
+      const data = await safeJsonParse(response);
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to fetch domain data');

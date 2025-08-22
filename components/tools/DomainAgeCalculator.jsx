@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Clock, Calendar, AlertCircle, CheckCircle, Search } from 'lucide-react';
+import { safeJsonParse } from "../../utils/security-tools";
 
 export default function DomainAgeCalculator({ onClose }) {
   const [domain, setDomain] = useState('');
@@ -19,7 +20,7 @@ export default function DomainAgeCalculator({ onClose }) {
 
     try {
       const response = await fetch(`/api/lookup?query=${encodeURIComponent(domain.trim())}&type=domain`);
-      const data = await response.json();
+      const data = await safeJsonParse(response);
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to fetch domain data');

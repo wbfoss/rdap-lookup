@@ -1,3 +1,22 @@
+// Safe JSON parsing for API responses
+export const safeJsonParse = async (response) => {
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  
+  const responseText = await response.text();
+  
+  if (!responseText.trim()) {
+    throw new Error('Empty response from server');
+  }
+  
+  try {
+    return JSON.parse(responseText);
+  } catch (error) {
+    throw new Error(`Invalid JSON response: ${error.message}`);
+  }
+};
+
 // Validation utilities for security tools
 export const validateDomain = (domain) => {
   if (!domain || typeof domain !== 'string') {

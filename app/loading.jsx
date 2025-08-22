@@ -6,8 +6,8 @@ export default function Loading() {
       <div className="flex flex-col items-center gap-4">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         <div className="flex flex-col items-center">
-          <p className="text-lg font-semibold text-gray-900 text-white">Loading RDAP Lookup Tool</p>
-          <p className="text-sm text-gray-600 text-gray-400">Preparing modern domain intelligence...</p>
+          <p className="text-lg font-semibold text-gray-900">Loading DomainIntel</p>
+          <p className="text-sm text-gray-600">Preparing domain intelligence platform...</p>
         </div>
       </div>
     </div>

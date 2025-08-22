@@ -10,7 +10,7 @@ export async function GET(request: Request) {
     const hasTitle = searchParams.has('title');
     const title = hasTitle
       ? searchParams.get('title')?.slice(0, 100)
-      : 'RDAP Lookup Tool';
+      : 'DomainIntel';
     
     const hasDescription = searchParams.has('description');
     const description = hasDescription
@@ -83,7 +83,7 @@ export async function GET(request: Request) {
                   lineHeight: 1.2,
                 }}
               >
-                RDAP Lookup
+                DomainIntel
               </div>
               <div
                 style={{
@@ -252,7 +252,7 @@ export async function GET(request: Request) {
               color: '#64748B',
             }}
           >
-            rdap.vercel.app
+            domainintel.in
           </div>
         </div>
       ),

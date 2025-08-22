@@ -4,4 +4,4 @@ Allow: /api/og
 
 Disallow: /api/lookup
 
-Sitemap: https://rdap.vercel.app/sitemap.xml
+Sitemap: https://domainintel.in/sitemap.xml

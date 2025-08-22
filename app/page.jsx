@@ -323,10 +323,10 @@ export default function HomePage() {
                   <Search className="w-12 h-12 text-blue-600" />
                 </div>
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Ready to lookup RDAP data
+                  Ready for Domain Intelligence Analysis
                 </h3>
                 <p className="text-gray-500 mb-6">
-                  Enter a domain, IP address, ASN, or entity handle to get started with your RDAP query.
+                  Enter a domain, IP address, ASN, or entity handle to get comprehensive intelligence and security analysis.
                 </p>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                   <div className="text-center">
@@ -361,7 +361,7 @@ export default function HomePage() {
                     <div className="flex items-center gap-3">
                       <CheckCircle className="w-5 h-5 text-green-500" />
                       <h3 className="text-lg font-semibold text-gray-900">
-                        RDAP Results
+                        Domain Intelligence Results
                       </h3>
                     </div>
                     <button

@@ -8,7 +8,7 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="text-center md:text-left">
             <p className="text-sm text-gray-600">
-              &copy; {new Date().getFullYear()} RDAP Lookup. All Rights Reserved.
+              &copy; {new Date().getFullYear()} DomainIntel. All Rights Reserved.
             </p>
             <p className="text-xs text-gray-500 mt-1">
               Built with <Heart className="inline w-3 h-3 text-red-500" /> by the open-source community.

@@ -3,8 +3,8 @@ import Header from "../../components/Header";
 import Breadcrumb from "../../components/Breadcrumb";
 
 export const metadata = {
-  title: 'About RDAP Lookup Tool - Open Source Domain Intelligence Project | GitHub',
-  description: 'RDAP Lookup is a free, open source web tool for domain intelligence, IP lookup, and network analysis. Built with Next.js and React. Contribute on GitHub, star our repository, and join the community building the future of domain lookup tools.',
+  title: 'About DomainIntel - Open Source Domain Intelligence & Security Platform',
+  description: 'DomainIntel is a free, open source platform for domain intelligence, cybersecurity research, and network analysis. Built with Next.js and React. Contribute on GitHub and join the security community.',
   keywords: [
     'RDAP lookup open source',
     'free RDAP tool',
@@ -33,12 +33,12 @@ export const metadata = {
     'SSL certificate checker open source'
   ],
   alternates: {
-    canonical: 'https://rdap.vercel.app/about',
+    canonical: 'https://domainintel.in/about',
   },
   openGraph: {
-    title: 'About RDAP Lookup - Open Source Domain Intelligence Tool',
-    description: 'Free, open source RDAP lookup tool for domain intelligence. Built with Next.js, React, and modern web technologies. Star us on GitHub and contribute to the future of domain lookup.',
-    url: 'https://rdap.vercel.app/about',
+    title: 'About DomainIntel - Open Source Domain Intelligence & Security Platform',
+    description: 'Free, open source domain intelligence and cybersecurity platform. Built with Next.js, React, and modern web technologies. Join the security community.',
+    url: 'https://domainintel.in/about',
     type: 'website',
   },
 };
@@ -61,8 +61,8 @@ export default function AboutPage() {
               <Info className="w-6 h-6 text-blue-600" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">About RDAP Lookup</h1>
-              <p className="text-gray-600">Free & Open Source Domain Intelligence</p>
+              <h1 className="text-2xl font-bold text-gray-900">About DomainIntel</h1>
+              <p className="text-gray-600">Domain Intelligence & Security Platform</p>
             </div>
           </div>
         </div>
@@ -77,10 +77,10 @@ export default function AboutPage() {
             </div>
             <div className="space-y-4">
               <p className="text-gray-700">
-                RDAP Lookup is a completely free, open source web application that provides comprehensive domain intelligence, IP address lookup, and network analysis capabilities. Built with modern web technologies and designed for developers, security researchers, and IT professionals.
+                DomainIntel is a completely free, open source platform that provides comprehensive domain intelligence, cybersecurity research tools, and network analysis capabilities. Built with modern web technologies and designed for security researchers, IT professionals, and cybersecurity analysts.
               </p>
               <p className="text-gray-700">
-                As an open source project hosted on GitHub, we believe in transparency, community collaboration, and making powerful domain lookup tools freely available. Our mission is to democratize access to domain intelligence and provide a modern alternative to traditional WHOIS lookups.
+                As an open source project hosted on GitHub, we believe in transparency, community collaboration, and making powerful domain intelligence tools freely available. Our mission is to democratize access to cybersecurity research tools and provide advanced threat detection capabilities.
               </p>
             </div>
           </div>
@@ -92,7 +92,7 @@ export default function AboutPage() {
               <h2 className="text-lg font-bold">Join Our Open Source Community</h2>
             </div>
             <p className="text-gray-300 mb-4">
-              Help us build the future of domain intelligence tools. Star our repository, contribute code, or report issues.
+              Help us build the future of cybersecurity and domain intelligence tools. Star our repository, contribute code, or report issues.
             </p>
             <div className="flex flex-wrap gap-3">
               <a
@@ -121,7 +121,7 @@ export default function AboutPage() {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
               <div className="flex items-center gap-3 mb-3">
                 <Globe className="w-5 h-5 text-blue-600" />
-                <h3 className="font-semibold text-gray-900">Domain RDAP Lookup</h3>
+                <h3 className="font-semibold text-gray-900">Domain Intelligence Lookup</h3>
               </div>
               <p className="text-sm text-gray-600">
                 Query any domain name to get registration details, nameservers, status codes, and expiration dates in structured JSON format.

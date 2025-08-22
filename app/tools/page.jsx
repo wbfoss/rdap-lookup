@@ -15,7 +15,7 @@ import Header from "../../components/Header";
 import Breadcrumb from "../../components/Breadcrumb";
 
 export const metadata = {
-  title: 'Security Tools - Domain & Network Intelligence | RDAP Lookup',
+  title: 'Security Tools - Domain & Network Intelligence | DomainIntel',
   description: 'Comprehensive security tools for domain analysis, threat detection, and cybersecurity research. Domain age calculator, typosquatting detection, SSL analysis, and more.',
   keywords: [
     'security tools',
@@ -30,12 +30,12 @@ export const metadata = {
     'network security'
   ],
   alternates: {
-    canonical: 'https://rdap.vercel.app/tools',
+    canonical: 'https://domainintel.in/tools',
   },
   openGraph: {
     title: 'Security Tools - Domain & Network Intelligence',
     description: 'Comprehensive security tools for domain analysis, threat detection, and cybersecurity research.',
-    url: 'https://rdap.vercel.app/tools',
+    url: 'https://domainintel.in/tools',
     type: 'website',
   },
 };

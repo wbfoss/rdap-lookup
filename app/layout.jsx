@@ -5,9 +5,9 @@ import { Providers } from '../components/providers';
 import Footer from '../components/Footer';
 
 export const metadata = {
-  metadataBase: new URL('https://rdap.vercel.app'),
-  title: 'RDAP Lookup Tool - Modern Domain Intelligence & WHOIS Alternative',
-  description: 'Free RDAP lookup tool for domain, IP, and ASN queries. Modern replacement for WHOIS with structured data, security analysis, and privacy compliance. Get comprehensive domain intelligence instantly.',
+  metadataBase: new URL('https://domainintel.in'),
+  title: 'DomainIntel - Modern Domain Intelligence & Security Platform',
+  description: 'Advanced domain intelligence and cybersecurity platform. RDAP lookup, threat detection, security analysis for domains, IPs, and network infrastructure. Free tools for security researchers.',
   keywords: [
     'RDAP lookup',
     'domain lookup', 
@@ -32,9 +32,9 @@ export const metadata = {
     'cybersecurity tools',
     'network tools'
   ],
-  authors: [{ name: 'RDAP Lookup Team' }],
-  creator: 'RDAP Lookup Team',
-  publisher: 'RDAP Lookup',
+  authors: [{ name: 'DomainIntel Team' }],
+  creator: 'DomainIntel Team',
+  publisher: 'DomainIntel',
   category: 'Technology',
   classification: 'Network Tools',
   robots: {
@@ -51,36 +51,36 @@ export const metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://rdap.vercel.app',
-    siteName: 'RDAP Lookup Tool',
-    title: 'RDAP Lookup Tool - Modern Domain Intelligence & WHOIS Alternative',
-    description: 'Free RDAP lookup tool for domain, IP, and ASN queries. Modern replacement for WHOIS with structured data, security analysis, and privacy compliance.',
+    url: 'https://domainintel.in',
+    siteName: 'DomainIntel',
+    title: 'DomainIntel - Modern Domain Intelligence & Security Platform',
+    description: 'Advanced domain intelligence and cybersecurity platform. RDAP lookup, threat detection, security analysis for domains, IPs, and network infrastructure.',
     images: [
       {
         url: '/api/og',
         width: 1200,
         height: 630,
-        alt: 'RDAP Lookup Tool - Modern Domain Intelligence',
+        alt: 'DomainIntel - Modern Domain Intelligence & Security Platform',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    site: '@rdaplookup',
-    creator: '@rdaplookup',
-    title: 'RDAP Lookup Tool - Modern Domain Intelligence',
-    description: 'Free RDAP lookup tool for domain, IP, and ASN queries. Modern replacement for WHOIS with structured data and security analysis.',
-    images: ['/api/og?title=RDAP+Lookup+Tool&description=Modern+Domain+Intelligence'],
+    site: '@domainintel',
+    creator: '@domainintel',
+    title: 'DomainIntel - Modern Domain Intelligence & Security Platform',
+    description: 'Advanced domain intelligence and cybersecurity platform. RDAP lookup, threat detection, security analysis for domains, IPs, and network infrastructure.',
+    images: ['/api/og?title=DomainIntel&description=Domain+Intelligence+Platform'],
   },
   alternates: {
-    canonical: 'https://rdap.vercel.app',
+    canonical: 'https://domainintel.in',
   },
   other: {
     'mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-status-bar-style': 'default',
-    'apple-mobile-web-app-title': 'RDAP Lookup',
-    'application-name': 'RDAP Lookup Tool',
+    'apple-mobile-web-app-title': 'DomainIntel',
+    'application-name': 'DomainIntel',
     'msapplication-TileColor': '#2563eb',
     'theme-color': '#2563eb',
   },
@@ -90,9 +90,9 @@ export default function RootLayout({ children }) {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "name": "RDAP Lookup Tool",
-    "description": "Free RDAP lookup tool for domain, IP, and ASN queries. Modern replacement for WHOIS with structured data, security analysis, and privacy compliance.",
-    "url": "https://rdap.vercel.app",
+    "name": "DomainIntel",
+    "description": "Advanced domain intelligence and cybersecurity platform. RDAP lookup, threat detection, security analysis for domains, IPs, and network infrastructure.",
+    "url": "https://domainintel.in",
     "applicationCategory": "NetworkApplication",
     "operatingSystem": "Web",
     "offers": {
@@ -102,13 +102,13 @@ export default function RootLayout({ children }) {
     },
     "creator": {
       "@type": "Organization",
-      "name": "RDAP Lookup Team"
+      "name": "DomainIntel Team"
     },
     "featureList": [
-      "Domain RDAP Lookup",
-      "IP Address RDAP Lookup", 
-      "ASN RDAP Lookup",
-      "Entity RDAP Lookup",
+      "Domain Intelligence Lookup",
+      "IP Address Intelligence Lookup", 
+      "ASN Intelligence Lookup",
+      "Entity Intelligence Lookup",
       "DNSSEC Verification",
       "SSL Certificate Analysis",
       "Email Security Analysis",

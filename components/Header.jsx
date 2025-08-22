@@ -47,8 +47,8 @@ export default function Header() {
                 <Zap className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <h1 className="font-bold text-lg text-gray-900">RDAP Lookup</h1>
-                <p className="text-xs text-gray-500">Modern Domain Intelligence</p>
+                <h1 className="font-bold text-lg text-gray-900">DomainIntel</h1>
+                <p className="text-xs text-gray-500">Domain Intelligence Platform</p>
               </div>
             </Link>
           </div>

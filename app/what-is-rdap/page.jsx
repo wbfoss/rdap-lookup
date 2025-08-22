@@ -33,12 +33,12 @@ export const metadata = {
     'IETF RDAP standard'
   ],
   alternates: {
-    canonical: 'https://rdap.vercel.app/what-is-rdap',
+    canonical: 'https://domainintel.in/what-is-rdap',
   },
   openGraph: {
     title: 'What is RDAP? Complete Guide to Registration Data Access Protocol',
     description: 'Learn everything about RDAP - the modern replacement for WHOIS. Understand how RDAP works, its benefits, API usage, and why it\'s the future of domain and network intelligence.',
-    url: 'https://rdap.vercel.app/what-is-rdap',
+    url: 'https://domainintel.in/what-is-rdap',
     type: 'article',
   },
 };
@@ -280,7 +280,7 @@ GET https://rdap.arin.net/registry/autnum/65536`}
           {/* CTA Section */}
           <div className="bg-blue-600 text-white rounded-lg p-6 text-center">
             <Search className="w-8 h-8 text-blue-200 mx-auto mb-4" />
-            <h2 className="text-xl font-bold mb-2">Try RDAP Lookup Now</h2>
+            <h2 className="text-xl font-bold mb-2">Try DomainIntel Now</h2>
             <p className="text-blue-100 mb-4">
               Experience the power of RDAP with our free lookup tool. Get comprehensive domain intelligence, IP information, and network data instantly.
             </p>
@@ -288,7 +288,7 @@ GET https://rdap.arin.net/registry/autnum/65536`}
               href="/"
               className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 font-medium rounded-lg hover:bg-gray-100 transition-colors"
             >
-              Start RDAP Lookup
+              Start Domain Lookup
               <ArrowRight className="w-4 h-4" />
             </a>
           </div>

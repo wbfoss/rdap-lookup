@@ -1,7 +1,7 @@
 {
-  "name": "RDAP Lookup Tool - Modern Domain Intelligence",
-  "short_name": "RDAP Lookup",
-  "description": "Modern RDAP lookup tool for domain, IP, and ASN queries with comprehensive security analysis",
+  "name": "DomainIntel - Modern Domain Intelligence & Security Platform",
+  "short_name": "DomainIntel",
+  "description": "Advanced domain intelligence and cybersecurity platform with RDAP lookup, threat detection, and security analysis",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a0a",
@@ -12,7 +12,7 @@
   "categories": ["productivity", "utilities", "developer"],
   "screenshots": [
     {
-      "src": "/api/og?title=RDAP+Dashboard&description=Modern+Interface",
+      "src": "/api/og?title=DomainIntel+Dashboard&description=Domain+Intelligence+Platform",
       "sizes": "1200x630",
       "type": "image/png",
       "form_factor": "wide"

@@ -217,125 +217,31 @@ export default function DomainParkingAnalysis({ onClose }) {
           analysis.parking_indicators.parking_confidence = Math.max(analysis.parking_indicators.parking_confidence, 80);
         }
       }
-
-      // Generate recommendations
-      if (analysis.parking_indicators.domain_status === 'parked') {
-        analysis.recommendations.push(
-          'Monitor domain for status changes and content updates',
-          'Set up alerts for DNS configuration modifications',
-          'Check for similar domain registrations by same entity',
-          'Monitor certificate transparency logs for SSL issuance',
-          'Track domain expiration and renewal patterns'
-        );
-
-        if (analysis.security_assessment.malicious_potential !== 'low') {
-          analysis.recommendations.push('Consider adding to security watchlist due to elevated risk factors');
-        }
-      } else {
-        analysis.recommendations.push(
-          'Domain appears to be actively used',
-          'Continue standard security monitoring practices'
-        );
-      }
-
-      return analysis;
     } catch (error) {
       throw new Error(`Domain parking analysis failed: ${error.message}`);
     }
 
-      const parkingIndicators = {
-        domain_status: Math.random() > 0.7 ? 'parked' : 'active',
-        parking_confidence: Math.floor(Math.random() * 100),
-        parking_service: Math.random() > 0.5 ? 'GoDaddy' : Math.random() > 0.5 ? 'Sedo' : 'ParkingCrew',
-        revenue_model: Math.random() > 0.6 ? 'advertising' : Math.random() > 0.5 ? 'affiliate' : 'none',
-        ad_density: Math.floor(Math.random() * 10) + 1,
-        click_value: (Math.random() * 5).toFixed(2)
-      };
-
-      const technicalAnalysis = {
-        dns_analysis: {
-          nameservers: [
-            'ns1.parkingcrew.net',
-            'ns2.parkingcrew.net'
-          ],
-          a_records: ['192.168.1.' + Math.floor(Math.random() * 255)],
-          mx_records: [],
-          txt_records: ['v=spf1 -all'],
-          parking_ns_detected: true
-        },
-        http_analysis: {
-          status_code: 200,
-          server: 'Apache/2.4.41',
-          content_length: 15420,
-          page_load_time: '0.8s',
-          redirect_count: 1,
-          ssl_enabled: true
-        },
-        content_analysis: {
-          title: domain + ' - Premium Domain Name',
-          meta_keywords: 'premium domain, for sale, buy domain',
-          ad_blocks: 8,
-          affiliate_links: 12,
-          contact_forms: 1,
-          parking_templates: ['template-basic', 'monetization-ads']
-        }
-      };
-
-      const securityAssessment = {
-        malicious_potential: Math.random() > 0.8 ? 'high' : Math.random() > 0.6 ? 'medium' : 'low',
-        weaponization_risk: Math.random() > 0.7 ? 'high' : 'low',
-        monitoring_priority: Math.random() > 0.6 ? 'high' : 'medium',
-        threat_indicators: [
-          {
-            type: 'Recent Registration',
-            present: Math.random() > 0.7,
-            severity: 'medium',
-            description: 'Domain registered within last 30 days'
-          },
-          {
-            type: 'Suspicious Keywords',
-            present: Math.random() > 0.8,
-            severity: 'high',
-            description: 'Contains brand-related keywords'
-          },
-          {
-            type: 'Typosquatting Pattern',
-            present: Math.random() > 0.9,
-            severity: 'high',
-            description: 'Similar to known popular domains'
-          },
-          {
-            type: 'Historical Malware',
-            present: Math.random() > 0.95,
-            severity: 'critical',
-            description: 'Previously associated with malicious activity'
-          }
-        ]
-      };
-
-      const recommendations = [
+    // Generate recommendations
+    if (analysis.parking_indicators.domain_status === 'parked') {
+      analysis.recommendations.push(
         'Monitor domain for status changes and content updates',
         'Set up alerts for DNS configuration modifications',
         'Check for similar domain registrations by same entity',
         'Monitor certificate transparency logs for SSL issuance',
         'Track domain expiration and renewal patterns'
-      ];
+      );
 
-      const analysis = {
-        domain,
-        timestamp: new Date().toISOString(),
-        parking_indicators: parkingIndicators,
-        technical_analysis: technicalAnalysis,
-        security_assessment: securityAssessment,
-        recommendations
-      };
-
-      setAnalysis(analysis);
-    } catch (err) {
-      setError('Analysis failed. Please try again.');
-    } finally {
-      setLoading(false);
+      if (analysis.security_assessment.malicious_potential !== 'low') {
+        analysis.recommendations.push('Consider adding to security watchlist due to elevated risk factors');
+      }
+    } else {
+      analysis.recommendations.push(
+        'Domain appears to be actively used',
+        'Continue standard security monitoring practices'
+      );
     }
+
+    return analysis;
   };
 
   const getSeverityColor = (severity) => {
@@ -348,17 +254,24 @@ export default function DomainParkingAnalysis({ onClose }) {
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'parked': return 'text-orange-600 bg-orange-50';
-      case 'active': return 'text-green-600 bg-green-50';
-      default: return 'text-gray-600 bg-gray-50';
+  const getRiskColor = (risk) => {
+    switch (risk) {
+      case 'high': return 'text-red-600 bg-red-50 border-red-200';
+      case 'medium': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
+      case 'low': return 'text-green-600 bg-green-50 border-green-200';
+      default: return 'text-gray-600 bg-gray-50 border-gray-200';
     }
+  };
+
+  const getStatusColor = (status) => {
+    if (status === 'parked') return 'text-orange-600 bg-orange-50';
+    if (status === 'active') return 'text-green-600 bg-green-50';
+    return 'text-gray-600 bg-gray-50';
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-orange-50">
           <div className="flex items-center gap-3">
@@ -367,7 +280,7 @@ export default function DomainParkingAnalysis({ onClose }) {
             </div>
             <div>
               <h2 className="text-xl font-bold text-gray-900">Domain Parking Analysis</h2>
-              <p className="text-sm text-gray-600">Detect parked domains that could be weaponized</p>
+              <p className="text-sm text-gray-600">Analyze domain parking status and security implications</p>
             </div>
           </div>
           <button
@@ -426,17 +339,17 @@ export default function DomainParkingAnalysis({ onClose }) {
                 {/* Domain Status Overview */}
                 <div className="bg-gray-50 rounded-lg p-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <Globe className="w-5 h-5" />
+                    <Target className="w-5 h-5" />
                     Domain Status Overview
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="bg-white rounded-lg p-4 border">
                       <div className="flex items-center gap-2 mb-2">
-                        <Target className="w-4 h-4 text-orange-600" />
+                        <Globe className="w-4 h-4 text-blue-600" />
                         <span className="text-sm font-medium text-gray-700">Status</span>
                       </div>
-                      <div className={`text-lg font-semibold px-2 py-1 rounded ${getStatusColor(analysis.parking_indicators.domain_status)}`}>
-                        {analysis.parking_indicators.domain_status.charAt(0).toUpperCase() + analysis.parking_indicators.domain_status.slice(1)}
+                      <div className={`text-lg font-bold px-2 py-1 rounded ${getStatusColor(analysis.parking_indicators.domain_status)}`}>
+                        {analysis.parking_indicators.domain_status.toUpperCase()}
                       </div>
                     </div>
                     <div className="bg-white rounded-lg p-4 border">
@@ -444,150 +357,19 @@ export default function DomainParkingAnalysis({ onClose }) {
                         <Shield className="w-4 h-4 text-orange-600" />
                         <span className="text-sm font-medium text-gray-700">Confidence</span>
                       </div>
-                      <div className="text-lg font-semibold text-gray-900">
-                        {analysis.parking_indicators.parking_confidence}%
+                      <div className="text-lg font-bold text-gray-900">
+                        {analysis.parking_indicators.confidence_score}%
                       </div>
                     </div>
                     <div className="bg-white rounded-lg p-4 border">
                       <div className="flex items-center gap-2 mb-2">
-                        <Server className="w-4 h-4 text-orange-600" />
+                        <Server className="w-4 h-4 text-green-600" />
                         <span className="text-sm font-medium text-gray-700">Service</span>
                       </div>
-                      <div className="text-lg font-semibold text-gray-900">
-                        {analysis.parking_indicators.parking_service}
+                      <div className="text-sm font-medium text-gray-900">
+                        {analysis.parking_indicators.parking_service || 'Unknown'}
                       </div>
                     </div>
-                  </div>
-                </div>
-
-                {/* Technical Analysis */}
-                <div className="bg-white rounded-lg border p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <Database className="w-5 h-5" />
-                    Technical Analysis
-                  </h3>
-                  
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* DNS Analysis */}
-                    <div>
-                      <h4 className="font-medium text-gray-900 mb-3">DNS Configuration</h4>
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center text-sm">
-                          <span className="text-gray-600">Nameservers:</span>
-                          <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
-                            {analysis.technical_analysis.dns_analysis.nameservers.length} detected
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center text-sm">
-                          <span className="text-gray-600">A Records:</span>
-                          <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
-                            {analysis.technical_analysis.dns_analysis.a_records[0]}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center text-sm">
-                          <span className="text-gray-600">Parking NS:</span>
-                          {analysis.technical_analysis.dns_analysis.parking_ns_detected ? (
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                          ) : (
-                            <X className="w-4 h-4 text-red-600" />
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* HTTP Analysis */}
-                    <div>
-                      <h4 className="font-medium text-gray-900 mb-3">HTTP Response</h4>
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center text-sm">
-                          <span className="text-gray-600">Status Code:</span>
-                          <span className="font-mono text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
-                            {analysis.technical_analysis.http_analysis.status_code}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center text-sm">
-                          <span className="text-gray-600">Load Time:</span>
-                          <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
-                            {analysis.technical_analysis.http_analysis.page_load_time}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center text-sm">
-                          <span className="text-gray-600">SSL Enabled:</span>
-                          {analysis.technical_analysis.http_analysis.ssl_enabled ? (
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                          ) : (
-                            <X className="w-4 h-4 text-red-600" />
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Security Assessment */}
-                <div className="bg-white rounded-lg border p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <AlertTriangle className="w-5 h-5" />
-                    Security Assessment
-                  </h3>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div className="text-center p-4 rounded-lg bg-gray-50">
-                      <div className="text-2xl font-bold text-gray-900">
-                        {analysis.security_assessment.malicious_potential.toUpperCase()}
-                      </div>
-                      <div className="text-sm text-gray-600">Malicious Potential</div>
-                    </div>
-                    <div className="text-center p-4 rounded-lg bg-gray-50">
-                      <div className="text-2xl font-bold text-gray-900">
-                        {analysis.security_assessment.weaponization_risk.toUpperCase()}
-                      </div>
-                      <div className="text-sm text-gray-600">Weaponization Risk</div>
-                    </div>
-                    <div className="text-center p-4 rounded-lg bg-gray-50">
-                      <div className="text-2xl font-bold text-gray-900">
-                        {analysis.security_assessment.monitoring_priority.toUpperCase()}
-                      </div>
-                      <div className="text-sm text-gray-600">Monitoring Priority</div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <h4 className="font-medium text-gray-900">Threat Indicators</h4>
-                    {analysis.security_assessment.threat_indicators.map((indicator, index) => (
-                      <div key={index} className={`p-3 rounded-lg border ${getSeverityColor(indicator.severity)}`}>
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="font-medium">{indicator.type}</span>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-medium px-2 py-1 rounded bg-current bg-opacity-10">
-                              {indicator.severity.toUpperCase()}
-                            </span>
-                            {indicator.present ? (
-                              <AlertTriangle className="w-4 h-4" />
-                            ) : (
-                              <CheckCircle className="w-4 h-4" />
-                            )}
-                          </div>
-                        </div>
-                        <p className="text-xs opacity-90">{indicator.description}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Recommendations */}
-                <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <Zap className="w-5 h-5 text-blue-600" />
-                    Recommendations
-                  </h3>
-                  <div className="space-y-2">
-                    {analysis.recommendations.map((rec, index) => (
-                      <div key={index} className="flex items-start gap-3">
-                        <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                        <span className="text-sm text-gray-700">{rec}</span>
-                      </div>
-                    ))}
                   </div>
                 </div>
 

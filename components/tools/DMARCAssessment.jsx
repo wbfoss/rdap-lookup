@@ -327,6 +327,9 @@ export default function DMARCAssessment({ onClose }) {
     }
 
     return analysis;
+    } catch (error) {
+      throw new Error(`DMARC analysis failed: ${error.message}`);
+    }
   };
 
   const getSeverityColor = (severity) => {

@@ -183,164 +183,31 @@ export default function BlacklistAggregation({ onClose }) {
     } catch (error) {
       throw new Error(`Blacklist check failed: ${error.message}`);
     }
-    
-    const results = {
-      domain,
-      timestamp: new Date().toISOString(),
-      summary: {
-        total_checked: securityVendors.length,
-        detections: 0,
-        clean: 0,
-        errors: 0,
-        risk_score: 0
-      },
-      vendors: [],
-      categories: {
-        malware: { detections: 0, total: 0 },
-        phishing: { detections: 0, total: 0 },
-        c2: { detections: 0, total: 0 },
-        apt: { detections: 0, total: 0 },
-        spam: { detections: 0, total: 0 }
-      },
-      timeline: [],
-      recommendations: []
+  };
+
+  const getSeverityColor = (severity) => {
+    const colors = {
+      critical: 'text-red-700 bg-red-50 border-red-200',
+      high: 'text-orange-700 bg-orange-50 border-orange-200',
+      medium: 'text-yellow-700 bg-yellow-50 border-yellow-200',
+      low: 'text-blue-700 bg-blue-50 border-blue-200',
+      info: 'text-gray-700 bg-gray-50 border-gray-200'
     };
-
-    // Simulate checking each vendor
-    for (const vendor of securityVendors) {
-      // Simulate random detection results (heavily weighted toward clean)
-      const isDetected = Math.random() < 0.05; // 5% chance of detection
-      const hasError = Math.random() < 0.02; // 2% chance of error
-      
-      let status = 'clean';
-      let detection_date = null;
-      let threat_type = null;
-      
-      if (hasError) {
-        status = 'error';
-        results.summary.errors++;
-      } else if (isDetected) {
-        status = 'detected';
-        detection_date = new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString();
-        threat_type = ['malware', 'phishing', 'suspicious', 'spam'][Math.floor(Math.random() * 4)];
-        results.summary.detections++;
-        
-        if (results.categories[vendor.category]) {
-          results.categories[vendor.category].detections++;
-        }
-        
-        results.timeline.push({
-          date: detection_date,
-          vendor: vendor.name,
-          action: 'detected',
-          category: threat_type
-        });
-      } else {
-        results.summary.clean++;
-      }
-      
-      if (results.categories[vendor.category]) {
-        results.categories[vendor.category].total++;
-      }
-      
-      results.vendors.push({
-        name: vendor.name,
-        status,
-        category: vendor.category,
-        reputation: vendor.reputation,
-        coverage: vendor.coverage,
-        detection_date,
-        threat_type,
-        last_checked: new Date().toISOString()
-      });
-    }
-
-    // Calculate risk score
-    const detectionRate = results.summary.detections / results.summary.total_checked;
-    results.summary.risk_score = Math.round(detectionRate * 100);
-    
-    // Generate recommendations
-    if (results.summary.detections === 0) {
-      results.recommendations.push({
-        type: 'success',
-        message: 'Domain appears clean across all security vendors',
-        action: 'Continue monitoring for future threats'
-      });
-    } else if (results.summary.detections <= 2) {
-      results.recommendations.push({
-        type: 'warning',
-        message: 'Low-level detection by few vendors',
-        action: 'Investigate detection reasons and monitor closely'
-      });
-    } else if (results.summary.detections <= 5) {
-      results.recommendations.push({
-        type: 'alert',
-        message: 'Multiple vendor detections indicate potential threat',
-        action: 'Immediately investigate and consider blocking domain'
-      });
-    } else {
-      results.recommendations.push({
-        type: 'critical',
-        message: 'High number of detections across multiple vendors',
-        action: 'Block domain immediately and conduct thorough investigation'
-      });
-    }
-    
-    if (results.summary.errors > 5) {
-      results.recommendations.push({
-        type: 'info',
-        message: 'Multiple vendor API errors detected',
-        action: 'Retry check later or verify API connectivity'
-      });
-    }
-
-    // Sort timeline by date
-    results.timeline.sort((a, b) => new Date(b.date) - new Date(a.date));
-    
-    return results;
+    return colors[severity] || colors.info;
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'detected': return 'text-red-700 bg-red-50 border-red-200';
-      case 'clean': return 'text-green-700 bg-green-50 border-green-200';
-      case 'error': return 'text-gray-700 bg-gray-50 border-gray-200';
-      default: return 'text-gray-700 bg-gray-50 border-gray-200';
+      case 'detected': return 'text-red-600 bg-red-50 border-red-200';
+      case 'clean': return 'text-green-600 bg-green-50 border-green-200';
+      case 'error': return 'text-gray-600 bg-gray-50 border-gray-200';
+      default: return 'text-gray-600 bg-gray-50 border-gray-200';
     }
-  };
-
-  const getRecommendationColor = (type) => {
-    switch (type) {
-      case 'success': return 'text-green-700 bg-green-50 border-green-200';
-      case 'warning': return 'text-yellow-700 bg-yellow-50 border-yellow-200';
-      case 'alert': return 'text-orange-700 bg-orange-50 border-orange-200';
-      case 'critical': return 'text-red-700 bg-red-50 border-red-200';
-      case 'info': return 'text-blue-700 bg-blue-50 border-blue-200';
-      default: return 'text-gray-700 bg-gray-50 border-gray-200';
-    }
-  };
-
-  const exportResults = () => {
-    if (!result) return;
-    
-    const csv = [
-      'Vendor,Status,Category,Reputation,Coverage,Detection Date,Threat Type',
-      ...result.vendors.map(v => 
-        `"${v.name}","${v.status}","${v.category}","${v.reputation}","${v.coverage}","${v.detection_date || 'N/A'}","${v.threat_type || 'N/A'}"`
-      )
-    ].join('\n');
-    
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `blacklist-check-${result.domain}-${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
@@ -350,7 +217,7 @@ export default function BlacklistAggregation({ onClose }) {
               </div>
               <div>
                 <h2 className="text-xl font-bold text-gray-900">Blacklist Aggregation</h2>
-                <p className="text-gray-600">Check domain against multiple security vendors</p>
+                <p className="text-gray-600">Check against multiple security vendor blacklists</p>
               </div>
             </div>
             <button
@@ -359,20 +226,6 @@ export default function BlacklistAggregation({ onClose }) {
             >
               ×
             </button>
-          </div>
-
-          {/* Info Box */}
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-start gap-3">
-              <Info className="w-5 h-5 text-blue-600 mt-1" />
-              <div className="text-sm text-blue-800">
-                <p className="font-semibold mb-1">Security Vendor Blacklist Check</p>
-                <p>
-                  This tool checks the domain against {securityVendors.length} major security vendors' 
-                  blacklists to identify potential threats including malware, phishing, and C2 infrastructure.
-                </p>
-              </div>
-            </div>
           </div>
 
           {/* Form */}
@@ -394,7 +247,7 @@ export default function BlacklistAggregation({ onClose }) {
                 {loading ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                 ) : (
-                  <AlertTriangle className="w-4 h-4" />
+                  <Shield className="w-4 h-4" />
                 )}
                 {loading ? 'Checking...' : 'Check Blacklists'}
               </button>
@@ -413,180 +266,93 @@ export default function BlacklistAggregation({ onClose }) {
           {result && (
             <div className="space-y-6">
               {/* Summary */}
-              <div className={`rounded-lg p-6 border-2 ${
-                result.summary.detections === 0 ? 'bg-green-50 border-green-300' :
-                result.summary.detections <= 2 ? 'bg-yellow-50 border-yellow-300' :
-                result.summary.detections <= 5 ? 'bg-orange-50 border-orange-300' :
-                'bg-red-50 border-red-300'
-              }`}>
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h3 className="text-2xl font-bold text-gray-900">{result.domain}</h3>
-                    <p className="text-sm text-gray-600">Security Vendor Blacklist Check</p>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Globe className="w-5 h-5 text-blue-600" />
+                    <h3 className="font-semibold text-gray-900">Total Checked</h3>
                   </div>
-                  <div className="text-center">
-                    <div className={`text-4xl font-bold ${
-                      result.summary.detections === 0 ? 'text-green-600' :
-                      result.summary.detections <= 2 ? 'text-yellow-600' :
-                      result.summary.detections <= 5 ? 'text-orange-600' :
-                      'text-red-600'
-                    }`}>
-                      {result.summary.detections}
-                    </div>
-                    <p className="text-sm font-semibold">Detections</p>
-                  </div>
+                  <p className="text-2xl font-bold text-blue-600">{result.summary.total_checked}</p>
                 </div>
-                
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div>
-                    <p className="text-sm text-gray-600">Total Checked</p>
-                    <p className="text-xl font-bold">{result.summary.total_checked}</p>
+                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                    <h3 className="font-semibold text-gray-900">Clean</h3>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Clean</p>
-                    <p className="text-xl font-bold text-green-600">{result.summary.clean}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Errors</p>
-                    <p className="text-xl font-bold text-gray-600">{result.summary.errors}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Risk Score</p>
-                    <p className="text-xl font-bold">{result.summary.risk_score}%</p>
-                  </div>
+                  <p className="text-2xl font-bold text-green-600">{result.summary.clean}</p>
                 </div>
-              </div>
-
-              {/* Export Button */}
-              <button
-                onClick={exportResults}
-                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2"
-              >
-                <Download className="w-4 h-4" />
-                Export Results as CSV
-              </button>
-
-              {/* Category Breakdown */}
-              <div className="bg-white rounded-lg p-6 border border-gray-200">
-                <h3 className="font-semibold text-gray-900 mb-4">Detection by Category</h3>
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                  {Object.entries(result.categories).map(([category, data]) => (
-                    <div key={category} className="text-center">
-                      <div className={`text-2xl font-bold ${
-                        data.detections > 0 ? 'text-red-600' : 'text-green-600'
-                      }`}>
-                        {data.detections}
-                      </div>
-                      <p className="text-sm text-gray-600 capitalize">{category}</p>
-                      <p className="text-xs text-gray-500">/ {data.total} vendors</p>
-                    </div>
-                  ))}
+                <div className="bg-red-50 rounded-lg p-4 border border-red-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <XCircle className="w-5 h-5 text-red-600" />
+                    <h3 className="font-semibold text-gray-900">Detections</h3>
+                  </div>
+                  <p className="text-2xl font-bold text-red-600">{result.summary.detections}</p>
+                </div>
+                <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Shield className="w-5 h-5 text-purple-600" />
+                    <h3 className="font-semibold text-gray-900">Risk Score</h3>
+                  </div>
+                  <p className="text-2xl font-bold text-purple-600">{result.summary.risk_score}/100</p>
                 </div>
               </div>
 
               {/* Vendor Results */}
-              <div className="bg-white rounded-lg p-6 border border-gray-200">
-                <h3 className="font-semibold text-gray-900 mb-4">Vendor Results</h3>
-                <div className="space-y-2 max-h-96 overflow-y-auto">
+              <div className="bg-white rounded-lg border p-6">
+                <h3 className="font-semibold text-gray-900 mb-4">Security Vendor Results</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
                   {result.vendors.map((vendor, index) => (
-                    <div key={index} className={`flex items-center justify-between p-3 rounded-lg border ${getStatusColor(vendor.status)}`}>
-                      <div className="flex items-center gap-3">
-                        {vendor.status === 'detected' ? (
-                          <XCircle className="w-5 h-5 text-red-600" />
-                        ) : vendor.status === 'clean' ? (
-                          <CheckCircle className="w-5 h-5 text-green-600" />
-                        ) : (
-                          <AlertTriangle className="w-5 h-5 text-gray-600" />
-                        )}
-                        <div>
-                          <p className="font-medium">{vendor.name}</p>
-                          <div className="flex gap-2 text-xs">
-                            <span className={`px-2 py-0.5 rounded ${
-                              vendor.reputation === 'high' ? 'bg-green-100 text-green-700' :
-                              vendor.reputation === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                              'bg-gray-100 text-gray-700'
-                            }`}>
-                              {vendor.reputation}
-                            </span>
-                            <span className="text-gray-500 capitalize">{vendor.category}</span>
-                          </div>
+                    <div key={index} className={`p-3 rounded-lg border ${getStatusColor(vendor.status)}`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-medium text-sm">{vendor.name}</span>
+                        <div className="flex items-center gap-2">
+                          {vendor.status === 'detected' ? (
+                            <XCircle className="w-4 h-4" />
+                          ) : vendor.status === 'clean' ? (
+                            <CheckCircle className="w-4 h-4" />
+                          ) : (
+                            <Info className="w-4 h-4" />
+                          )}
+                          <span className="text-xs font-medium px-2 py-1 rounded bg-current bg-opacity-10">
+                            {vendor.status.toUpperCase()}
+                          </span>
                         </div>
                       </div>
-                      <div className="text-right text-sm">
-                        <p className="font-medium capitalize">{vendor.status}</p>
-                        {vendor.threat_type && (
-                          <p className="text-xs text-red-600 capitalize">{vendor.threat_type}</p>
-                        )}
-                      </div>
+                      {vendor.details && (
+                        <p className="text-xs opacity-90">{vendor.details}</p>
+                      )}
+                      {vendor.last_seen && (
+                        <p className="text-xs opacity-75 mt-1">Last seen: {new Date(vendor.last_seen).toLocaleDateString()}</p>
+                      )}
+                      {vendor.confidence > 0 && (
+                        <p className="text-xs opacity-75 mt-1">Confidence: {vendor.confidence}%</p>
+                      )}
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Detection Timeline */}
-              {result.timeline.length > 0 && (
-                <div className="bg-red-50 rounded-lg p-6 border border-red-200">
-                  <h3 className="font-semibold text-red-900 mb-4">Detection Timeline</h3>
+              {/* Recommendations */}
+              {result.recommendations && result.recommendations.length > 0 && (
+                <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
+                  <h3 className="font-semibold text-blue-900 mb-4">Recommendations</h3>
                   <div className="space-y-3">
-                    {result.timeline.slice(0, 10).map((event, index) => (
-                      <div key={index} className="flex items-center gap-3 p-3 bg-white rounded border border-red-200">
-                        <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                        <div className="flex-1">
-                          <p className="font-medium">{event.vendor}</p>
-                          <p className="text-sm text-gray-600">
-                            Detected as {event.category} on {new Date(event.date).toLocaleDateString()}
-                          </p>
+                    {result.recommendations.map((rec, index) => (
+                      <div key={index} className={`rounded-lg p-4 border ${getSeverityColor(rec.severity)}`}>
+                        <div className="flex items-start gap-3">
+                          <span className="text-xs font-semibold uppercase px-2 py-1 rounded bg-current bg-opacity-10">
+                            {rec.severity}
+                          </span>
+                          <div className="flex-1">
+                            <p className="font-medium">{rec.action}</p>
+                            <p className="text-sm mt-1 opacity-90">{rec.details}</p>
+                          </div>
                         </div>
                       </div>
                     ))}
-                    {result.timeline.length > 10 && (
-                      <p className="text-sm text-gray-600 text-center">
-                        ... and {result.timeline.length - 10} more detections
-                      </p>
-                    )}
                   </div>
                 </div>
               )}
-
-              {/* Recommendations */}
-              <div className="space-y-3">
-                {result.recommendations.map((rec, index) => (
-                  <div key={index} className={`rounded-lg p-4 border ${getRecommendationColor(rec.type)}`}>
-                    <div className="flex items-start gap-3">
-                      <Shield className="w-5 h-5 mt-1" />
-                      <div>
-                        <p className="font-medium">{rec.message}</p>
-                        <p className="text-sm mt-1">{rec.action}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Vendor Coverage */}
-              <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                <h3 className="font-semibold text-gray-900 mb-3">Vendor Coverage</h3>
-                <div className="grid grid-cols-3 gap-4 text-sm">
-                  <div>
-                    <p className="font-medium">Global Coverage</p>
-                    <p className="text-gray-600">
-                      {result.vendors.filter(v => v.coverage === 'global').length} vendors
-                    </p>
-                  </div>
-                  <div>
-                    <p className="font-medium">Enterprise Focus</p>
-                    <p className="text-gray-600">
-                      {result.vendors.filter(v => v.coverage === 'enterprise').length} vendors
-                    </p>
-                  </div>
-                  <div>
-                    <p className="font-medium">Regional Coverage</p>
-                    <p className="text-gray-600">
-                      {result.vendors.filter(v => v.coverage === 'regional').length} vendors
-                    </p>
-                  </div>
-                </div>
-              </div>
             </div>
           )}
         </div>

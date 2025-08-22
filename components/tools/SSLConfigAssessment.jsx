@@ -177,76 +177,11 @@ export default function SSLConfigAssessment({ onClose }) {
       throw new Error(`SSL connection failed: ${error.message}`);
     }
     
-    const analysis = {
-      domain,
-      timestamp: new Date().toISOString(),
-      grade: 'B+', // Overall grade
-      score: 75,
-      
-      certificate: {
-        valid: true,
-        issuer: 'Let\'s Encrypt Authority X3',
-        subject: domain,
-        validFrom: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-        validTo: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
-        daysRemaining: 60,
-        signatureAlgorithm: 'SHA256withRSA',
-        keySize: 2048,
-        type: 'DV', // Domain Validated
-        san: [`*.${domain}`, domain],
-        transparency: true
-      },
-      
-      protocols: {
-        ssl2: { supported: false, secure: true },
-        ssl3: { supported: false, secure: true },
-        tls10: { supported: false, secure: true },
-        tls11: { supported: false, secure: true },
-        tls12: { supported: true, secure: true },
-        tls13: { supported: true, secure: true }
-      },
-      
-      cipherSuites: {
-        strong: [
-          'TLS_AES_256_GCM_SHA384',
-          'TLS_CHACHA20_POLY1305_SHA256',
-          'TLS_AES_128_GCM_SHA256',
-          'ECDHE-RSA-AES256-GCM-SHA384'
-        ],
-        weak: [],
-        deprecated: []
-      },
-      
-      vulnerabilities: {
-        heartbleed: { vulnerable: false, severity: 'none' },
-        poodle: { vulnerable: false, severity: 'none' },
-        freak: { vulnerable: false, severity: 'none' },
-        logjam: { vulnerable: false, severity: 'none' },
-        drown: { vulnerable: false, severity: 'none' },
-        beast: { vulnerable: false, severity: 'none' },
-        crime: { vulnerable: false, severity: 'none' }
-      },
-      
-      features: {
-        hsts: { 
-          enabled: true, 
-          maxAge: 31536000,
-          includeSubdomains: true,
-          preload: false
-        },
-        hpkp: { enabled: false },
-        ocspStapling: { enabled: true },
-        sniRequired: false,
-        forwardSecrecy: { supported: true, percentage: 100 },
-        sessionResumption: { supported: true, type: 'tickets' },
-        compressionSupported: false,
-        npnSupported: false,
-        alpnSupported: true,
-        http2Supported: true
-      },
-      
-      recommendations: []
-    };
+    // Update final analysis properties
+    analysis.domain = domain;
+    analysis.timestamp = new Date().toISOString();
+    
+    // Generate recommendations based on analysis
     
     // Generate recommendations based on analysis
     const recommendations = [];

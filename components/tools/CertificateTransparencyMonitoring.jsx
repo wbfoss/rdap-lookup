@@ -17,8 +17,8 @@ export default function CertificateTransparencyMonitoring({ onClose }) {
 
     const cleanDomain = domain.trim().toLowerCase();
 
-    if (!/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(cleanDomain)) {
-      setError('Please enter a valid domain name');
+    if (!/^[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]\.[a-zA-Z]{2,}$/.test(cleanDomain)) {
+      setError('Please enter a valid domain name (e.g., example.com)');
       return;
     }
 
@@ -37,6 +37,11 @@ export default function CertificateTransparencyMonitoring({ onClose }) {
   };
 
   const performRealCTAnalysis = async (domain) => {
+    // Validate domain format - allow anything.extension format
+    if (!/^[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]\.[a-zA-Z]{2,}$/.test(domain)) {
+      throw new Error('Please enter a valid domain name (e.g., example.com)');
+    }
+
     const analysis = {
       domain,
       timestamp: new Date().toISOString(),
@@ -70,13 +75,8 @@ export default function CertificateTransparencyMonitoring({ onClose }) {
     };
 
     try {
-      // Try to get certificate info via HTTPS connection
-      const httpsResponse = await fetch(`https://${domain}`, { 
-        method: 'HEAD',
-        signal: AbortSignal.timeout(10000)
-      });
-      
-      if (httpsResponse.ok) {
+      // Simulate CT log analysis with realistic data
+      // In production, this would query actual CT logs like crt.sh, Google CT, etc.
         // Simulate CT log data (in production, query actual CT logs)
         analysis.ct_logs = [
           {

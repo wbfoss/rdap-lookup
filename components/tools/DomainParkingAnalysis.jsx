@@ -18,8 +18,8 @@ export default function DomainParkingAnalysis({ onClose }) {
 
     const cleanDomain = domain.trim().toLowerCase();
 
-    if (!/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(cleanDomain)) {
-      setError('Please enter a valid domain name');
+    if (!/^[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]\.[a-zA-Z]{2,}$/.test(cleanDomain)) {
+      setError('Please enter a valid domain name (e.g., example.com)');
       return;
     }
 

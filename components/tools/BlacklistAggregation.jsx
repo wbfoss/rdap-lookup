@@ -44,8 +44,8 @@ export default function BlacklistAggregation({ onClose }) {
     try {
       const cleanDomain = domain.trim().toLowerCase();
       
-      // Validate domain format
-      if (!/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(cleanDomain)) {
+      // Validate domain format - allow anything.extension format
+      if (!/^[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]\.[a-zA-Z]{2,}$/.test(cleanDomain)) {
         throw new Error('Please enter a valid domain name (e.g., example.com)');
       }
       

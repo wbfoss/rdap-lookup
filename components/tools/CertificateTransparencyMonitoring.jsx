@@ -152,9 +152,6 @@ export default function CertificateTransparencyMonitoring({ onClose }) {
           'Monitor for short-lived certificate patterns',
           'Check for certificate revocation list updates'
         ];
-      } else {
-        throw new Error(`HTTPS not available for ${domain}`);
-      }
 
       return analysis;
     } catch (error) {

@@ -1,6 +1,6 @@
 
 import { Link } from "@heroui/react";
-import { Github, Heart } from "lucide-react";
+import { Heart } from "lucide-react";
 
 export default function Footer() {
   return (

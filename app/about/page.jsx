@@ -1,5 +1,5 @@
 import { Card, CardBody, CardHeader, Divider, Link, Button } from "@heroui/react";
-import { Info, Code, Heart, Zap, Github, GitBranch, Users, BookOpen, Shield, Globe, Star, TrendingUp } from "lucide-react";
+import { Info, Code, Heart, Zap, GitBranch, Users, Shield, Globe, Star, TrendingUp } from "lucide-react";
 
 export const metadata = {
   title: 'About RDAP Lookup Tool - Open Source Domain Intelligence Project | GitHub',
@@ -117,7 +117,7 @@ export default function AboutPage() {
 
             <section className="bg-primary/5 dark:bg-primary/10 p-6 rounded-lg">
               <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <Github className="w-6 h-6" />
+                <GitBranch className="w-6 h-6" />
                 Join Our Open Source Community
               </h2>
               <p className="text-default-600 mb-4">

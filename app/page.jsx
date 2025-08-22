@@ -407,36 +407,36 @@ export default function HomePage() {
                   {activeTab === 'overview' && (
                     <div className="space-y-6">
                       {/* Domain Information */}
-                      {result.rdap && (
+                      {result && (result.ldhName || result.handle || result.objectClassName) && (
                         <div className="bg-gray-50 rounded-lg p-4">
                           <div className="flex items-center gap-2 mb-4">
                             <Globe className="w-5 h-5 text-blue-600" />
                             <h4 className="text-lg font-semibold text-gray-900">Domain Information</h4>
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {result.rdap.ldhName && (
+                            {result.ldhName && (
                               <div>
                                 <span className="text-sm font-medium text-gray-500">Domain Name:</span>
-                                <p className="text-gray-900 font-mono">{result.rdap.ldhName}</p>
+                                <p className="text-gray-900 font-mono">{result.ldhName}</p>
                               </div>
                             )}
-                            {result.rdap.handle && (
+                            {result.handle && (
                               <div>
                                 <span className="text-sm font-medium text-gray-500">Handle:</span>
-                                <p className="text-gray-900 font-mono">{result.rdap.handle}</p>
+                                <p className="text-gray-900 font-mono">{result.handle}</p>
                               </div>
                             )}
-                            {result.rdap.objectClassName && (
+                            {result.objectClassName && (
                               <div>
                                 <span className="text-sm font-medium text-gray-500">Object Type:</span>
-                                <p className="text-gray-900">{result.rdap.objectClassName}</p>
+                                <p className="text-gray-900">{result.objectClassName}</p>
                               </div>
                             )}
-                            {result.rdap.status && result.rdap.status.length > 0 && (
+                            {result.status && result.status.length > 0 && (
                               <div className="md:col-span-2 lg:col-span-3">
                                 <span className="text-sm font-medium text-gray-500">Status:</span>
                                 <div className="flex flex-wrap gap-1 mt-1">
-                                  {result.rdap.status.map((status, index) => (
+                                  {result.status.map((status, index) => (
                                     <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                       {status}
                                     </span>
@@ -449,14 +449,14 @@ export default function HomePage() {
                       )}
 
                       {/* Registration Dates */}
-                      {result.rdap && result.rdap.events && result.rdap.events.length > 0 && (
+                      {result && result.events && result.events.length > 0 && (
                         <div className="bg-gray-50 rounded-lg p-4">
                           <div className="flex items-center gap-2 mb-4">
                             <Calendar className="w-5 h-5 text-green-600" />
                             <h4 className="text-lg font-semibold text-gray-900">Important Dates</h4>
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {result.rdap.events.map((event, index) => (
+                            {result.events.map((event, index) => (
                               <div key={index}>
                                 <span className="text-sm font-medium text-gray-500">
                                   {event.eventAction.charAt(0).toUpperCase() + event.eventAction.slice(1)}:
@@ -478,14 +478,14 @@ export default function HomePage() {
                       )}
 
                       {/* Nameservers */}
-                      {result.rdap && result.rdap.nameservers && result.rdap.nameservers.length > 0 && (
+                      {result && result.nameservers && result.nameservers.length > 0 && (
                         <div className="bg-gray-50 rounded-lg p-4">
                           <div className="flex items-center gap-2 mb-4">
                             <Server className="w-5 h-5 text-purple-600" />
                             <h4 className="text-lg font-semibold text-gray-900">Nameservers</h4>
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {result.rdap.nameservers.map((ns, index) => (
+                            {result.nameservers.map((ns, index) => (
                               <div key={index} className="border border-gray-200 rounded-md p-3">
                                 <p className="font-mono text-gray-900">{ns.ldhName}</p>
                                 {ns.ipAddresses && (
@@ -515,14 +515,14 @@ export default function HomePage() {
                       )}
 
                       {/* Entities (Contacts/Registrar) */}
-                      {result.rdap && result.rdap.entities && result.rdap.entities.length > 0 && (
+                      {result && result.entities && result.entities.length > 0 && (
                         <div className="bg-gray-50 rounded-lg p-4">
                           <div className="flex items-center gap-2 mb-4">
                             <Building className="w-5 h-5 text-orange-600" />
                             <h4 className="text-lg font-semibold text-gray-900">Entities & Contacts</h4>
                           </div>
                           <div className="space-y-4">
-                            {result.rdap.entities.map((entity, index) => (
+                            {result.entities.map((entity, index) => (
                               <div key={index} className="border border-gray-200 rounded-md p-4">
                                 <div className="flex items-center gap-2 mb-2">
                                   {entity.roles && entity.roles.length > 0 && (
@@ -555,56 +555,60 @@ export default function HomePage() {
                       )}
 
                       {/* Security Analysis */}
-                      {(result.dnssec || result.ssl || result.spf || result.dmarc || result.dkim) && (
+                      {(result.ssl || result.emailSecurity) && (
                         <div className="bg-gray-50 rounded-lg p-4">
                           <div className="flex items-center gap-2 mb-4">
                             <Shield className="w-5 h-5 text-red-600" />
                             <h4 className="text-lg font-semibold text-gray-900">Security Analysis</h4>
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {result.dnssec && (
+                            {result.ssl && !result.ssl.error && (
                               <div className="flex items-center gap-2 p-3 border border-gray-200 rounded-md">
-                                <Shield className={`w-4 h-4 ${result.dnssec.enabled ? 'text-green-500' : 'text-red-500'}`} />
-                                <div>
-                                  <p className="text-sm font-medium text-gray-900">DNSSEC</p>
-                                  <p className="text-xs text-gray-500">{result.dnssec.enabled ? 'Enabled' : 'Disabled'}</p>
-                                </div>
-                              </div>
-                            )}
-                            {result.ssl && (
-                              <div className="flex items-center gap-2 p-3 border border-gray-200 rounded-md">
-                                <Lock className={`w-4 h-4 ${result.ssl.valid ? 'text-green-500' : 'text-red-500'}`} />
+                                <Lock className="w-4 h-4 text-green-500" />
                                 <div>
                                   <p className="text-sm font-medium text-gray-900">SSL Certificate</p>
-                                  <p className="text-xs text-gray-500">{result.ssl.valid ? 'Valid' : 'Invalid'}</p>
-                                  {result.ssl.issuer && <p className="text-xs text-gray-400">{result.ssl.issuer}</p>}
+                                  <p className="text-xs text-gray-500">Valid</p>
+                                  {result.ssl.issuer && result.ssl.issuer.CN && <p className="text-xs text-gray-400">{result.ssl.issuer.CN}</p>}
                                 </div>
                               </div>
                             )}
-                            {result.spf && (
+                            {result.ssl && result.ssl.error && (
                               <div className="flex items-center gap-2 p-3 border border-gray-200 rounded-md">
-                                <Mail className={`w-4 h-4 ${result.spf.valid ? 'text-green-500' : 'text-red-500'}`} />
+                                <Lock className="w-4 h-4 text-red-500" />
+                                <div>
+                                  <p className="text-sm font-medium text-gray-900">SSL Certificate</p>
+                                  <p className="text-xs text-gray-500">Error</p>
+                                  <p className="text-xs text-gray-400">{result.ssl.error}</p>
+                                </div>
+                              </div>
+                            )}
+                            {result.emailSecurity && result.emailSecurity.spf && result.emailSecurity.spf !== 'Not found' && (
+                              <div className="flex items-center gap-2 p-3 border border-gray-200 rounded-md">
+                                <Mail className="w-4 h-4 text-green-500" />
                                 <div>
                                   <p className="text-sm font-medium text-gray-900">SPF Record</p>
-                                  <p className="text-xs text-gray-500">{result.spf.valid ? 'Valid' : 'Invalid'}</p>
+                                  <p className="text-xs text-gray-500">Found</p>
+                                  <p className="text-xs text-gray-400 font-mono truncate">{result.emailSecurity.spf.substring(0, 50)}...</p>
                                 </div>
                               </div>
                             )}
-                            {result.dmarc && (
+                            {result.emailSecurity && result.emailSecurity.dmarc && result.emailSecurity.dmarc !== 'Not found' && (
                               <div className="flex items-center gap-2 p-3 border border-gray-200 rounded-md">
-                                <ShieldCheck className={`w-4 h-4 ${result.dmarc.valid ? 'text-green-500' : 'text-red-500'}`} />
+                                <ShieldCheck className="w-4 h-4 text-green-500" />
                                 <div>
                                   <p className="text-sm font-medium text-gray-900">DMARC Record</p>
-                                  <p className="text-xs text-gray-500">{result.dmarc.valid ? 'Valid' : 'Invalid'}</p>
+                                  <p className="text-xs text-gray-500">Found</p>
+                                  <p className="text-xs text-gray-400 font-mono truncate">{result.emailSecurity.dmarc.substring(0, 50)}...</p>
                                 </div>
                               </div>
                             )}
-                            {result.dkim && (
+                            {result.emailSecurity && result.emailSecurity.dkim && result.emailSecurity.dkim !== 'Not found' && result.emailSecurity.dkim !== 'Not looked up' && (
                               <div className="flex items-center gap-2 p-3 border border-gray-200 rounded-md">
-                                <Key className={`w-4 h-4 ${result.dkim.valid ? 'text-green-500' : 'text-red-500'}`} />
+                                <Key className="w-4 h-4 text-green-500" />
                                 <div>
                                   <p className="text-sm font-medium text-gray-900">DKIM Record</p>
-                                  <p className="text-xs text-gray-500">{result.dkim.valid ? 'Valid' : 'Invalid'}</p>
+                                  <p className="text-xs text-gray-500">Found</p>
+                                  <p className="text-xs text-gray-400 font-mono truncate">{result.emailSecurity.dkim.substring(0, 50)}...</p>
                                 </div>
                               </div>
                             )}
@@ -613,36 +617,36 @@ export default function HomePage() {
                       )}
 
                       {/* Network Information (for IP/ASN queries) */}
-                      {result.rdap && (result.rdap.startAddress || result.rdap.endAddress || result.rdap.ipVersion) && (
+                      {result && (result.startAddress || result.endAddress || result.ipVersion) && (
                         <div className="bg-gray-50 rounded-lg p-4">
                           <div className="flex items-center gap-2 mb-4">
                             <Network className="w-5 h-5 text-indigo-600" />
                             <h4 className="text-lg font-semibold text-gray-900">Network Information</h4>
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {result.rdap.startAddress && (
+                            {result.startAddress && (
                               <div>
                                 <span className="text-sm font-medium text-gray-500">Start Address:</span>
-                                <p className="text-gray-900 font-mono">{result.rdap.startAddress}</p>
+                                <p className="text-gray-900 font-mono">{result.startAddress}</p>
                               </div>
                             )}
-                            {result.rdap.endAddress && (
+                            {result.endAddress && (
                               <div>
                                 <span className="text-sm font-medium text-gray-500">End Address:</span>
-                                <p className="text-gray-900 font-mono">{result.rdap.endAddress}</p>
+                                <p className="text-gray-900 font-mono">{result.endAddress}</p>
                               </div>
                             )}
-                            {result.rdap.ipVersion && (
+                            {result.ipVersion && (
                               <div>
                                 <span className="text-sm font-medium text-gray-500">IP Version:</span>
-                                <p className="text-gray-900">IPv{result.rdap.ipVersion}</p>
+                                <p className="text-gray-900">IPv{result.ipVersion}</p>
                               </div>
                             )}
-                            {result.rdap.cidr0_cidrs && result.rdap.cidr0_cidrs.length > 0 && (
+                            {result.cidr0_cidrs && result.cidr0_cidrs.length > 0 && (
                               <div className="md:col-span-2 lg:col-span-3">
                                 <span className="text-sm font-medium text-gray-500">CIDR Blocks:</span>
                                 <div className="flex flex-wrap gap-2 mt-1">
-                                  {result.rdap.cidr0_cidrs.map((cidr, index) => (
+                                  {result.cidr0_cidrs.map((cidr, index) => (
                                     <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 font-mono">
                                       {cidr.v4prefix || cidr.v6prefix}/{cidr.length}
                                     </span>

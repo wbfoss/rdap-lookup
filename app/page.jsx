@@ -73,6 +73,7 @@ import {
   Network,
   Zap
 } from "lucide-react";
+import GitHubBadge from '../components/GitHubBadge';
 
 export default function HomePage() {
   const [type, setType] = useState("domain");
@@ -746,16 +747,7 @@ export default function HomePage() {
         
         <NavbarContent justify="end">
           <NavbarItem>
-            <Button
-              as={Link}
-              isExternal
-              href="https://github.com/gensecaihq/rdap-lookup"
-              variant="flat"
-              size="sm"
-              startContent={<Github className="w-4 h-4" />}
-            >
-              Star on GitHub
-            </Button>
+            <GitHubBadge />
           </NavbarItem>
           <NavbarItem>
             <Switch

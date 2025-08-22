@@ -2,6 +2,7 @@ import '../styles/globals.css';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Providers } from '../components/providers';
+import Footer from '../components/Footer';
 
 export const metadata = {
   metadataBase: new URL('https://rdap.vercel.app'),
@@ -148,6 +149,7 @@ export default function RootLayout({ children }) {
           {children}
           <Analytics />
           <SpeedInsights />
+          <Footer />
         </Providers>
       </body>
     </html>

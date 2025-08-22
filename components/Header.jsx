@@ -31,6 +31,7 @@ export default function Header() {
 
   const navigation = [
     { name: "Home", href: "/", current: pathname === "/" },
+    { name: "Tools", href: "/tools", current: pathname === "/tools" },
     { name: "About", href: "/about", current: pathname === "/about" },
     { name: "What is RDAP?", href: "/what-is-rdap", current: pathname === "/what-is-rdap" },
   ];

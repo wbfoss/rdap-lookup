@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from "react";
 import { 
   Shield, 
   Globe, 
@@ -13,34 +16,23 @@ import {
 } from "lucide-react";
 import Header from "../../components/Header";
 import Breadcrumb from "../../components/Breadcrumb";
-
-export const metadata = {
-  title: 'Security Tools - Domain & Network Intelligence | DomainIntel',
-  description: 'Comprehensive security tools for domain analysis, threat detection, and cybersecurity research. Domain age calculator, typosquatting detection, SSL analysis, and more.',
-  keywords: [
-    'security tools',
-    'domain security',
-    'threat detection',
-    'cybersecurity tools',
-    'domain analysis',
-    'SSL analysis',
-    'typosquatting detection',
-    'domain age calculator',
-    'threat intelligence',
-    'network security'
-  ],
-  alternates: {
-    canonical: 'https://domainintel.in/tools',
-  },
-  openGraph: {
-    title: 'Security Tools - Domain & Network Intelligence',
-    description: 'Comprehensive security tools for domain analysis, threat detection, and cybersecurity research.',
-    url: 'https://domainintel.in/tools',
-    type: 'website',
-  },
-};
+import DomainAgeCalculator from "../../components/tools/DomainAgeCalculator";
+import TyposquattingDetection from "../../components/tools/TyposquattingDetection";
+import HomographAttackDetection from "../../components/tools/HomographAttackDetection";
+import DomainReputationScoring from "../../components/tools/DomainReputationScoring";
+import SuspiciousTLDFlagging from "../../components/tools/SuspiciousTLDFlagging";
+import SSLConfigAssessment from "../../components/tools/SSLConfigAssessment";
+import SPFAnalysis from "../../components/tools/SPFAnalysis";
+import DMARCAssessment from "../../components/tools/DMARCAssessment";
+import BlacklistAggregation from "../../components/tools/BlacklistAggregation";
+import PhishingLookup from "../../components/tools/PhishingLookup";
+import FastFluxDetection from "../../components/tools/FastFluxDetection";
+import DomainParkingAnalysis from "../../components/tools/DomainParkingAnalysis";
+import MalwareC2Detection from "../../components/tools/MalwareC2Detection";
+import CertificateTransparencyMonitoring from "../../components/tools/CertificateTransparencyMonitoring";
 
 export default function ToolsPage() {
+  const [activeTool, setActiveTool] = useState(null);
   const breadcrumbItems = [
     { label: "Tools", href: null }
   ];
@@ -51,7 +43,7 @@ export default function ToolsPage() {
       title: 'Domain Age Calculator',
       description: 'Calculate exact domain age and flag newly registered domains (< 30 days)',
       icon: Clock,
-      status: 'coming-soon',
+      status: 'available',
       category: 'Domain Security',
       color: 'blue'
     },
@@ -60,7 +52,7 @@ export default function ToolsPage() {
       title: 'Typosquatting Detection',
       description: 'Generate and check variations of popular domains (character substitution, insertion, omission)',
       icon: Search,
-      status: 'coming-soon',
+      status: 'available',
       category: 'Domain Security',
       color: 'purple'
     },
@@ -69,7 +61,7 @@ export default function ToolsPage() {
       title: 'Homograph Attack Detection',
       description: 'Identify domains using similar-looking Unicode characters',
       icon: Eye,
-      status: 'coming-soon',
+      status: 'available',
       category: 'Domain Security',
       color: 'yellow'
     },
@@ -78,7 +70,7 @@ export default function ToolsPage() {
       title: 'Domain Reputation Scoring',
       description: 'Aggregate score based on age, registrar, hosting provider, and historical data',
       icon: Shield,
-      status: 'coming-soon',
+      status: 'available',
       category: 'Domain Security',
       color: 'green'
     },
@@ -87,7 +79,7 @@ export default function ToolsPage() {
       title: 'Suspicious TLD Flagging',
       description: 'Flag domains using commonly abused TLDs (.tk, .ml, .ga, etc.)',
       icon: AlertTriangle,
-      status: 'coming-soon',
+      status: 'available',
       category: 'Domain Security',
       color: 'red'
     },
@@ -96,7 +88,7 @@ export default function ToolsPage() {
       title: 'Fast Flux Detection',
       description: 'Monitor rapid IP address changes indicating malicious infrastructure',
       icon: Globe,
-      status: 'coming-soon',
+      status: 'available',
       category: 'Domain Security',
       color: 'indigo'
     },
@@ -105,7 +97,7 @@ export default function ToolsPage() {
       title: 'Domain Parking Analysis',
       description: 'Detect parked domains that could be weaponized',
       icon: Target,
-      status: 'coming-soon',
+      status: 'available',
       category: 'Domain Security',
       color: 'orange'
     },
@@ -114,7 +106,7 @@ export default function ToolsPage() {
       title: 'Malware C2 Detection',
       description: 'Check against known Command & Control infrastructure databases',
       icon: Database,
-      status: 'coming-soon',
+      status: 'available',
       category: 'Threat Intelligence',
       color: 'red'
     },
@@ -123,7 +115,7 @@ export default function ToolsPage() {
       title: 'Phishing Database Lookup',
       description: 'Cross-reference with PhishTank, OpenPhish, and other feeds',
       icon: Shield,
-      status: 'coming-soon',
+      status: 'available',
       category: 'Threat Intelligence',
       color: 'red'
     },
@@ -132,7 +124,7 @@ export default function ToolsPage() {
       title: 'Blacklist Aggregation',
       description: 'Check against multiple security vendor blacklists',
       icon: AlertTriangle,
-      status: 'coming-soon',
+      status: 'available',
       category: 'Threat Intelligence',
       color: 'red'
     },
@@ -141,7 +133,7 @@ export default function ToolsPage() {
       title: 'Certificate Transparency Monitoring',
       description: 'Track certificate issuance patterns and anomalies',
       icon: Lock,
-      status: 'coming-soon',
+      status: 'available',
       category: 'Certificate & SSL',
       color: 'blue'
     },
@@ -150,7 +142,7 @@ export default function ToolsPage() {
       title: 'SSL Configuration Assessment',
       description: 'Analyze cipher suites, protocol versions, and security issues',
       icon: Lock,
-      status: 'coming-soon',
+      status: 'available',
       category: 'Certificate & SSL',
       color: 'green'
     },
@@ -159,7 +151,7 @@ export default function ToolsPage() {
       title: 'Advanced SPF Analysis',
       description: 'Parse SPF records and identify misconfigurations',
       icon: Mail,
-      status: 'coming-soon',
+      status: 'available',
       category: 'Email Security',
       color: 'blue'
     },
@@ -168,7 +160,7 @@ export default function ToolsPage() {
       title: 'DMARC Policy Assessment',
       description: 'Analyze DMARC policies and provide security recommendations',
       icon: Mail,
-      status: 'coming-soon',
+      status: 'available',
       category: 'Email Security',
       color: 'purple'
     }
@@ -256,7 +248,10 @@ export default function ToolsPage() {
                               </button>
                             )}
                             {tool.status === 'available' && (
-                              <button className="mt-4 w-full px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors">
+                              <button 
+                                onClick={() => setActiveTool(tool.id)}
+                                className="mt-4 w-full px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
+                              >
                                 Launch Tool
                               </button>
                             )}
@@ -316,6 +311,50 @@ export default function ToolsPage() {
           </a>
         </div>
       </main>
+
+      {/* Tool Modals */}
+      {activeTool === 'domain-age' && (
+        <DomainAgeCalculator onClose={() => setActiveTool(null)} />
+      )}
+      {activeTool === 'typosquatting' && (
+        <TyposquattingDetection onClose={() => setActiveTool(null)} />
+      )}
+      {activeTool === 'homograph' && (
+        <HomographAttackDetection onClose={() => setActiveTool(null)} />
+      )}
+      {activeTool === 'domain-reputation' && (
+        <DomainReputationScoring onClose={() => setActiveTool(null)} />
+      )}
+      {activeTool === 'suspicious-tld' && (
+        <SuspiciousTLDFlagging onClose={() => setActiveTool(null)} />
+      )}
+      {activeTool === 'ssl-config' && (
+        <SSLConfigAssessment onClose={() => setActiveTool(null)} />
+      )}
+      {activeTool === 'spf-analysis' && (
+        <SPFAnalysis onClose={() => setActiveTool(null)} />
+      )}
+      {activeTool === 'dmarc-assessment' && (
+        <DMARCAssessment onClose={() => setActiveTool(null)} />
+      )}
+      {activeTool === 'blacklist-check' && (
+        <BlacklistAggregation onClose={() => setActiveTool(null)} />
+      )}
+      {activeTool === 'phishing-lookup' && (
+        <PhishingLookup onClose={() => setActiveTool(null)} />
+      )}
+      {activeTool === 'fast-flux' && (
+        <FastFluxDetection onClose={() => setActiveTool(null)} />
+      )}
+      {activeTool === 'domain-parking' && (
+        <DomainParkingAnalysis onClose={() => setActiveTool(null)} />
+      )}
+      {activeTool === 'malware-c2' && (
+        <MalwareC2Detection onClose={() => setActiveTool(null)} />
+      )}
+      {activeTool === 'cert-transparency' && (
+        <CertificateTransparencyMonitoring onClose={() => setActiveTool(null)} />
+      )}
     </div>
   );
 }

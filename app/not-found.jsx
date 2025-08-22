@@ -1,43 +1,39 @@
-import { Button, Card, CardBody } from '@heroui/react';
 import { Home, Search } from 'lucide-react';
 import Link from 'next/link';
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <Card className="max-w-md w-full">
-        <CardBody className="text-center space-y-6 p-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+        <div className="text-center space-y-6 p-8">
           <div className="flex justify-center">
-            <div className="bg-warning/10 p-4 rounded-full">
-              <Search className="w-8 h-8 text-warning" />
+            <div className="bg-yellow-100 dark:bg-yellow-900/20 p-4 rounded-full">
+              <Search className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
             </div>
           </div>
           
           <div className="space-y-2">
-            <h2 className="text-xl font-bold text-foreground">Page Not Found</h2>
-            <p className="text-default-500 text-sm">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Page Not Found</h2>
+            <p className="text-gray-600 dark:text-gray-400 text-sm">
               The page you're looking for doesn't exist. Try searching for domain, IP, or ASN information instead.
             </p>
           </div>
 
           <div className="space-y-3">
-            <Button
-              as={Link}
+            <Link
               href="/"
-              color="primary"
-              variant="flat"
-              startContent={<Home className="w-4 h-4" />}
-              className="w-full"
+              className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors"
             >
+              <Home className="w-4 h-4" />
               Go to RDAP Lookup
-            </Button>
+            </Link>
           </div>
 
-          <div className="text-xs text-default-400">
+          <div className="text-xs text-gray-500 dark:text-gray-500">
             Error 404 - Page not found
           </div>
-        </CardBody>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

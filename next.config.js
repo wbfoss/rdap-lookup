@@ -5,7 +5,7 @@ const nextConfig = {
   // Enable experimental features available on Vercel
   experimental: {
     webVitalsAttribution: ['CLS', 'LCP'],
-    optimizePackageImports: ['@heroui/react', 'lucide-react'],
+    optimizePackageImports: ['lucide-react'],
   },
 
   // Optimize images

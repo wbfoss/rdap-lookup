@@ -1,47 +1,8 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
-import { 
-  Card, 
-  CardBody, 
-  CardHeader,
-  Input,
-  Button,
-  Select,
-  SelectItem,
-  Chip,
-  Divider,
-  Navbar,
-  NavbarBrand,
-  NavbarContent,
-  NavbarItem,
-  Switch,
-  Spinner,
-  Code,
-  Link,
-  Avatar,
-  Badge,
-  Progress,
-  Tooltip,
-  Tabs,
-  Tab,
-  ScrollShadow,
-  Snippet,
-  Table,
-  TableHeader,
-  TableColumn,
-  TableBody,
-  TableRow,
-  TableCell,
-  User,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  useDisclosure
-} from "@heroui/react";
+import Header from "../components/Header";
 import { 
   Search,
   Globe,
@@ -56,11 +17,6 @@ import {
   Download,
   Copy,
   ExternalLink,
-  Sun,
-  Moon,
-  Github,
-  Star,
-  TrendingUp,
   Info,
   Mail,
   Lock,
@@ -70,10 +26,8 @@ import {
   Key,
   ShieldCheck,
   ShieldAlert,
-  Network,
-  Zap
+  Network
 } from "lucide-react";
-import GitHubBadge from '../components/GitHubBadge';
 
 export default function HomePage() {
   const [type, setType] = useState("domain");
@@ -83,23 +37,11 @@ export default function HomePage() {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [captchaToken, setCaptchaToken] = useState("");
-  const [isDarkMode, setIsDarkMode] = useState(true);
   const [captchaKey, setCaptchaKey] = useState(Date.now());
   const [isResetting, setIsResetting] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const captchaRef = useRef(null);
-  const {isOpen, onOpen, onOpenChange} = useDisclosure();
   const [copiedField, setCopiedField] = useState(null);
-
-  // Apply dark mode by default on component mount
-  useEffect(() => {
-    document.documentElement.classList.add("dark");
-  }, []);
-
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    document.documentElement.classList.toggle("dark");
-  };
 
   const copyToClipboard = (text, field) => {
     navigator.clipboard.writeText(text);
@@ -147,14 +89,13 @@ export default function HomePage() {
       return;
     }
 
-    if (!captchaToken) {
+    if (process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY && !captchaToken) {
       setError("Please complete the captcha verification.");
       return;
     }
 
-    setResult(null);
-    setError(null);
     setIsLoading(true);
+    setError(null);
 
     try {
       const res = await fetch("/api/lookup", {
@@ -181,853 +122,363 @@ export default function HomePage() {
     }
   }
 
-  async function resetForm() {
+  const handleCaptchaVerify = (token) => {
+    setCaptchaToken(token);
+    setError(null);
+  };
+
+  const handleCaptchaExpire = () => {
+    setCaptchaToken("");
+  };
+
+  const handleCaptchaError = () => {
+    setError("Captcha verification failed. Please try again.");
+    setCaptchaToken("");
+  };
+
+  const handleReset = () => {
     setIsResetting(true);
-    setType("domain");
-    setObjectValue("");
-    setDkimSelector("");
     setResult(null);
     setError(null);
+    setObjectValue("");
+    setDkimSelector("");
     setCaptchaToken("");
     setCaptchaKey(Date.now());
-    
-    if (captchaRef.current) {
-      try {
-        captchaRef.current.reset();
-      } catch (error) {
-        console.error('Error resetting hCaptcha:', error);
-      }
-    }
-    
-    await new Promise(resolve => setTimeout(resolve, 100));
-    setIsResetting(false);
-  }
-
-  const formatDate = (dateString) => {
-    if (!dateString) return null;
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffDays = Math.floor((date - now) / (1000 * 60 * 60 * 24));
-    
-    return {
-      formatted: date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      }),
-      relative: diffDays < 0 
-        ? `${Math.abs(diffDays)} days ago`
-        : diffDays === 0 
-        ? "Today"
-        : `In ${diffDays} days`,
-      isExpired: date < now,
-      isExpiringSoon: diffDays > 0 && diffDays <= 30,
-      diffDays: diffDays
-    };
+    setActiveTab("overview");
+    setTimeout(() => setIsResetting(false), 300);
   };
 
-  const renderQuickStats = () => {
-    if (!result) return null;
-
-    const stats = [
-      {
-        label: "Status",
-        value: result.status?.[0] || "Active",
-        icon: <Activity className="w-4 h-4" />,
-        color: "success"
-      },
-      {
-        label: "DNSSEC",
-        value: result.secureDNS?.delegationSigned ? "Enabled" : "Disabled",
-        icon: <Shield className="w-4 h-4" />,
-        color: result.secureDNS?.delegationSigned ? "success" : "warning"
-      },
-      {
-        label: "Nameservers",
-        value: result.nameservers?.length || 0,
-        icon: <Server className="w-4 h-4" />,
-        color: "primary"
-      },
-      {
-        label: "Registry",
-        value: result.port43 || "RDAP",
-        icon: <Database className="w-4 h-4" />,
-        color: "secondary"
-      }
-    ];
-
-    return (
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-        {stats.map((stat, idx) => (
-          <Card key={idx} className="bg-default-50 dark:bg-default-100/10">
-            <CardBody className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <Chip 
-                  variant="flat" 
-                  color={stat.color}
-                  size="sm"
-                  startContent={stat.icon}
-                >
-                  {stat.label}
-                </Chip>
-              </div>
-              <p className="text-xl font-bold">{stat.value}</p>
-            </CardBody>
-          </Card>
-        ))}
-      </div>
-    );
-  };
-
-  const renderOverviewTab = () => {
-    if (!result) return null;
-
-    return (
-      <div className="space-y-4">
-        {/* Domain Info Card */}
-        <Card>
-          <CardHeader className="flex justify-between">
-            <div className="flex gap-3">
-              <Avatar 
-                icon={<Globe className="w-5 h-5" />} 
-                className="bg-primary/10 text-primary"
-              />
-              <div>
-                <p className="text-md font-semibold">Domain Information</p>
-                <p className="text-small text-default-500">{result.ldhName}</p>
-              </div>
-            </div>
-            <Button
-              isIconOnly
-              variant="light"
-              onPress={() => copyToClipboard(result.ldhName, "domain")}
-            >
-              {copiedField === "domain" ? 
-                <CheckCircle className="w-4 h-4 text-success" /> : 
-                <Copy className="w-4 h-4" />
-              }
-            </Button>
-          </CardHeader>
-          <CardBody>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-3">
-                <div>
-                  <p className="text-small text-default-500 mb-1">Handle</p>
-                  <Code size="sm">{result.handle}</Code>
-                </div>
-                <div>
-                  <p className="text-small text-default-500 mb-1">Object Type</p>
-                  <Chip variant="flat" size="sm">{result.objectClassName}</Chip>
-                </div>
-              </div>
-              <div className="space-y-3">
-                <div>
-                  <p className="text-small text-default-500 mb-1">Status</p>
-                  <div className="flex flex-wrap gap-1">
-                    {result.status?.map((s, i) => (
-                      <Chip key={i} size="sm" variant="dot" color="success">
-                        {s.replace(/([A-Z])/g, ' $1').trim()}
-                      </Chip>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
-
-        {/* Dates Card */}
-        {result.events && (
-          <Card>
-            <CardHeader>
-              <div className="flex gap-3">
-                <Avatar 
-                  icon={<Calendar className="w-5 h-5" />} 
-                  className="bg-warning/10 text-warning"
-                />
-                <div>
-                  <p className="text-md font-semibold">Important Dates</p>
-                  <p className="text-small text-default-500">Registration lifecycle</p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardBody>
-              <div className="space-y-3">
-                {result.events.map((event, idx) => {
-                  const dateInfo = formatDate(event.eventDate);
-                  if (!dateInfo) return null;
-                  
-                  return (
-                    <div key={idx} className="flex justify-between items-center p-3 rounded-lg bg-default-100/50">
-                      <div className="flex items-center gap-3">
-                        <Clock className="w-4 h-4 text-default-400" />
-                        <div>
-                          <p className="text-sm font-medium capitalize">
-                            {event.eventAction.replace('registration', 'Registered')}
-                          </p>
-                          <p className="text-xs text-default-500">{dateInfo.formatted}</p>
-                        </div>
-                      </div>
-                      <Chip 
-                        size="sm"
-                        variant="flat"
-                        color={
-                          dateInfo.isExpired ? "danger" : 
-                          dateInfo.isExpiringSoon ? "warning" : 
-                          "success"
-                        }
-                      >
-                        {dateInfo.relative}
-                      </Chip>
-                    </div>
-                  );
-                })}
-              </div>
-            </CardBody>
-          </Card>
-        )}
-
-        {/* Nameservers Card */}
-        {result.nameservers && (
-          <Card>
-            <CardHeader>
-              <div className="flex gap-3">
-                <Avatar 
-                  icon={<Server className="w-5 h-5" />} 
-                  className="bg-secondary/10 text-secondary"
-                />
-                <div>
-                  <p className="text-md font-semibold">Nameservers</p>
-                  <p className="text-small text-default-500">{result.nameservers.length} servers</p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardBody>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {result.nameservers.map((ns, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-2 rounded-lg bg-default-100/50">
-                    <Code size="sm">{ns.ldhName}</Code>
-                    <Button
-                      size="sm"
-                      isIconOnly
-                      variant="light"
-                      onPress={() => copyToClipboard(ns.ldhName, `ns-${idx}`)}
-                    >
-                      {copiedField === `ns-${idx}` ? 
-                        <CheckCircle className="w-3 h-3 text-success" /> : 
-                        <Copy className="w-3 h-3" />
-                      }
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </CardBody>
-          </Card>
-        )}
-      </div>
-    );
-  };
-
-  const renderSecurityTab = () => {
-    if (!result) return null;
-
-    return (
-      <div className="space-y-4">
-        {/* DNSSEC Status */}
-        <Card>
-          <CardHeader>
-            <div className="flex gap-3">
-              <Avatar 
-                icon={result.secureDNS?.delegationSigned ? 
-                  <ShieldCheck className="w-5 h-5" /> : 
-                  <ShieldAlert className="w-5 h-5" />
-                } 
-                className={result.secureDNS?.delegationSigned ? 
-                  "bg-success/10 text-success" : 
-                  "bg-warning/10 text-warning"
-                }
-              />
-              <div>
-                <p className="text-md font-semibold">DNSSEC Status</p>
-                <p className="text-small text-default-500">
-                  {result.secureDNS?.delegationSigned ? "Protected" : "Not Protected"}
-                </p>
-              </div>
-            </div>
-          </CardHeader>
-          <CardBody>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Delegation Signed</span>
-                <Chip 
-                  size="sm" 
-                  color={result.secureDNS?.delegationSigned ? "success" : "warning"}
-                  variant="flat"
-                >
-                  {result.secureDNS?.delegationSigned ? "Yes" : "No"}
-                </Chip>
-              </div>
-              {result.secureDNS?.dsData && (
-                <div>
-                  <p className="text-sm text-default-500 mb-2">DS Records</p>
-                  <ScrollShadow className="max-h-40">
-                    {result.secureDNS.dsData.map((ds, idx) => (
-                      <div key={idx} className="mb-2 p-2 bg-default-100/50 rounded">
-                        <Code size="sm" className="text-xs">
-                          {`KeyTag: ${ds.keyTag}, Algorithm: ${ds.algorithm}, DigestType: ${ds.digestType}`}
-                        </Code>
-                      </div>
-                    ))}
-                  </ScrollShadow>
-                </div>
-              )}
-            </div>
-          </CardBody>
-        </Card>
-
-        {/* Email Security */}
-        {result.emailSecurity && (
-          <Card>
-            <CardHeader>
-              <div className="flex gap-3">
-                <Avatar 
-                  icon={<Mail className="w-5 h-5" />} 
-                  className="bg-primary/10 text-primary"
-                />
-                <div>
-                  <p className="text-md font-semibold">Email Security</p>
-                  <p className="text-small text-default-500">SPF, DMARC, DKIM Configuration</p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardBody>
-              <div className="space-y-3">
-                {result.emailSecurity.spf && (
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium">SPF Record</span>
-                      <Chip 
-                        size="sm" 
-                        color={result.emailSecurity.spf !== "Not found" ? "success" : "warning"}
-                        variant="dot"
-                      >
-                        {result.emailSecurity.spf !== "Not found" ? "Configured" : "Missing"}
-                      </Chip>
-                    </div>
-                    {result.emailSecurity.spf !== "Not found" && (
-                      <Code size="sm" className="text-xs block">
-                        {result.emailSecurity.spf}
-                      </Code>
-                    )}
-                  </div>
-                )}
-
-                {result.emailSecurity.dmarc && (
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium">DMARC Policy</span>
-                      <Chip 
-                        size="sm" 
-                        color={result.emailSecurity.dmarc !== "Not found" ? "success" : "warning"}
-                        variant="dot"
-                      >
-                        {result.emailSecurity.dmarc !== "Not found" ? "Configured" : "Missing"}
-                      </Chip>
-                    </div>
-                    {result.emailSecurity.dmarc !== "Not found" && (
-                      <Code size="sm" className="text-xs block">
-                        {result.emailSecurity.dmarc}
-                      </Code>
-                    )}
-                  </div>
-                )}
-
-                {result.emailSecurity.dkim && (
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium">DKIM</span>
-                      <Chip 
-                        size="sm" 
-                        color={result.emailSecurity.dkim !== "Not found" ? "success" : "warning"}
-                        variant="dot"
-                      >
-                        {result.emailSecurity.dkim !== "Not found" ? "Configured" : "Missing"}
-                      </Chip>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </CardBody>
-          </Card>
-        )}
-
-        {/* SSL Certificate */}
-        {result.ssl && (
-          <Card>
-            <CardHeader>
-              <div className="flex gap-3">
-                <Avatar 
-                  icon={<Lock className="w-5 h-5" />} 
-                  className={result.ssl.error ? 
-                    "bg-danger/10 text-danger" : 
-                    "bg-success/10 text-success"
-                  }
-                />
-                <div>
-                  <p className="text-md font-semibold">SSL Certificate</p>
-                  <p className="text-small text-default-500">
-                    {result.ssl.error ? "Issues Detected" : "Valid Certificate"}
-                  </p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardBody>
-              {result.ssl.error ? (
-                <Chip color="danger" variant="flat">
-                  {result.ssl.error}
-                </Chip>
-              ) : (
-                <div className="space-y-2">
-                  {result.ssl.issuer && (
-                    <div className="flex justify-between">
-                      <span className="text-sm text-default-500">Issuer</span>
-                      <span className="text-sm">{result.ssl.issuer}</span>
-                    </div>
-                  )}
-                  {result.ssl.validFrom && (
-                    <div className="flex justify-between">
-                      <span className="text-sm text-default-500">Valid From</span>
-                      <span className="text-sm">{new Date(result.ssl.validFrom).toLocaleDateString()}</span>
-                    </div>
-                  )}
-                  {result.ssl.validTo && (
-                    <div className="flex justify-between">
-                      <span className="text-sm text-default-500">Valid To</span>
-                      <span className="text-sm">{new Date(result.ssl.validTo).toLocaleDateString()}</span>
-                    </div>
-                  )}
-                </div>
-              )}
-            </CardBody>
-          </Card>
-        )}
-      </div>
-    );
-  };
-
-  const renderContactsTab = () => {
-    if (!result?.entities) return null;
-
-    return (
-      <div className="space-y-4">
-        {result.entities.map((entity, idx) => (
-          <Card key={idx}>
-            <CardHeader>
-              <div className="flex gap-3">
-                <Avatar 
-                  icon={<User className="w-5 h-5" />} 
-                  className="bg-default-100 text-default-600"
-                />
-                <div className="flex-1">
-                  <p className="text-md font-semibold">
-                    {entity.roles?.join(", ") || "Contact"}
-                  </p>
-                  <p className="text-small text-default-500">Handle: {entity.handle}</p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardBody>
-              {entity.vcardArray && (
-                <div className="space-y-2">
-                  {entity.vcardArray[1]?.map((item, i) => {
-                    const [type, , , value] = item;
-                    if (!value || !type) return null;
-                    
-                    const iconMap = {
-                      fn: <User className="w-4 h-4" />,
-                      org: <Building className="w-4 h-4" />,
-                      email: <Mail className="w-4 h-4" />,
-                      tel: <Phone className="w-4 h-4" />,
-                      adr: <MapPin className="w-4 h-4" />,
-                    };
-                    
-                    return (
-                      <div key={i} className="flex items-center gap-3">
-                        <span className="text-default-400">
-                          {iconMap[type] || <Info className="w-4 h-4" />}
-                        </span>
-                        <span className="text-sm">
-                          {Array.isArray(value) ? value.join(", ") : value}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </CardBody>
-          </Card>
-        ))}
-      </div>
-    );
-  };
-
-  const renderRawDataTab = () => {
-    if (!result) return null;
-
-    return (
-      <Card>
-        <CardHeader className="flex justify-between">
-          <div className="flex gap-3">
-            <Avatar 
-              icon={<Database className="w-5 h-5" />} 
-              className="bg-default-100 text-default-600"
-            />
-            <div>
-              <p className="text-md font-semibold">Raw RDAP Response</p>
-              <p className="text-small text-default-500">Complete JSON data</p>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              size="sm"
-              variant="flat"
-              onPress={() => copyToClipboard(JSON.stringify(result, null, 2), "raw")}
-              startContent={copiedField === "raw" ? 
-                <CheckCircle className="w-4 h-4" /> : 
-                <Copy className="w-4 h-4" />
-              }
-            >
-              Copy
-            </Button>
-            <Button
-              size="sm"
-              variant="flat"
-              color="primary"
-              onPress={() => {
-                const blob = new Blob([JSON.stringify(result, null, 2)], { type: "application/json" });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = `rdap-${result.ldhName || result.handle || "result"}.json`;
-                a.click();
-                URL.revokeObjectURL(url);
-              }}
-              startContent={<Download className="w-4 h-4" />}
-            >
-              Export
-            </Button>
-          </div>
-        </CardHeader>
-        <CardBody>
-          <ScrollShadow className="max-h-[500px]">
-            <Code className="text-xs">
-              <pre>{JSON.stringify(result, null, 2)}</pre>
-            </Code>
-          </ScrollShadow>
-        </CardBody>
-      </Card>
-    );
+  const formatJsonDisplay = (obj) => {
+    return JSON.stringify(obj, null, 2);
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Navbar */}
-      <Navbar maxWidth="full" className="border-b border-divider">
-        <NavbarBrand>
-          <div className="flex items-center gap-3">
-            <div className="bg-primary/10 p-2 rounded-lg">
-              <Zap className="w-5 h-5 text-primary" />
-            </div>
-            <div>
-              <p className="font-bold text-lg">RDAP Lookup</p>
-              <p className="text-tiny text-default-500">Modern Domain Intelligence</p>
-            </div>
-          </div>
-        </NavbarBrand>
-        
-        <NavbarContent justify="end">
-          <NavbarItem>
-            <GitHubBadge />
-          </NavbarItem>
-          <NavbarItem>
-            <Switch
-              defaultSelected={isDarkMode}
-              size="sm"
-              color="secondary"
-              onValueChange={toggleDarkMode}
-              thumbIcon={({ isSelected }) =>
-                isSelected ? <Moon className="w-3 h-3" /> : <Sun className="w-3 h-3" />
-              }
-            />
-          </NavbarItem>
-        </NavbarContent>
-      </Navbar>
+    <div className="min-h-screen bg-gray-50">
+      <Header />
 
-      <div className="container mx-auto px-4 py-6 max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Sidebar - Search Form */}
-          <div className="lg:col-span-4">
-            <Card className="sticky top-6">
-              <CardHeader>
-                <div className="flex gap-3 items-center">
-                  <div className="bg-primary/10 p-2 rounded-lg">
-                    <Search className="w-5 h-5 text-primary" />
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+          {/* Search Form - Left Column */}
+          <div className="lg:col-span-4 order-2 lg:order-1">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 lg:sticky lg:top-20">
+              {/* Header */}
+              <div className="px-6 py-4 border-b border-gray-200">
+                <div className="flex items-center gap-3">
+                  <div className="bg-blue-100 p-2 rounded-lg">
+                    <Search className="w-5 h-5 text-blue-600" />
                   </div>
                   <div>
-                    <p className="text-md font-semibold">RDAP Query</p>
-                    <p className="text-small text-default-500">Enter domain, IP, or ASN</p>
+                    <h2 className="text-lg font-semibold text-gray-900">RDAP Query</h2>
+                    <p className="text-sm text-gray-500">Enter domain, IP, or ASN</p>
                   </div>
                 </div>
-              </CardHeader>
-              <Divider />
-              <CardBody>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <Select
-                    label="Query Type"
-                    placeholder="Select type"
-                    selectedKeys={[type]}
-                    onSelectionChange={(keys) => setType(Array.from(keys)[0])}
-                    startContent={<Globe className="w-4 h-4 text-default-400" />}
-                    isDisabled={result !== null}
-                  >
-                    <SelectItem key="domain" value="domain">Domain</SelectItem>
-                    <SelectItem key="ip" value="ip">IP Address</SelectItem>
-                    <SelectItem key="autnum" value="autnum">ASN (Autonomous System)</SelectItem>
-                    <SelectItem key="entity" value="entity">Entity</SelectItem>
-                  </Select>
+              </div>
 
-                  <Input
-                    label="Query Value"
-                    placeholder={
-                      type === "domain" ? "example.com" :
-                      type === "ip" ? "8.8.8.8" :
-                      type === "autnum" ? "AS15169" :
-                      "HANDLE"
-                    }
-                    value={objectValue}
-                    onValueChange={setObjectValue}
-                    startContent={
-                      type === "domain" ? <Globe className="w-4 h-4 text-default-400" /> :
-                      type === "ip" ? <Network className="w-4 h-4 text-default-400" /> :
-                      type === "autnum" ? <Database className="w-4 h-4 text-default-400" /> :
-                      <Key className="w-4 h-4 text-default-400" />
-                    }
-                    isRequired
-                    isDisabled={result !== null}
-                    errorMessage={error}
-                  />
+              {/* Form */}
+              <div className="p-6">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Query Type */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Query Type
+                    </label>
+                    <select
+                      value={type}
+                      onChange={(e) => setType(e.target.value)}
+                      disabled={result !== null}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
+                    >
+                      <option value="domain">Domain</option>
+                      <option value="ip">IP Address</option>
+                      <option value="autnum">ASN (Autonomous System)</option>
+                      <option value="entity">Entity</option>
+                    </select>
+                  </div>
 
+                  {/* Query Value */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Query Value
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        {type === "domain" ? <Globe className="w-4 h-4 text-gray-400" /> :
+                         type === "ip" ? <Network className="w-4 h-4 text-gray-400" /> :
+                         type === "autnum" ? <Database className="w-4 h-4 text-gray-400" /> :
+                         <Key className="w-4 h-4 text-gray-400" />}
+                      </div>
+                      <input
+                        type="text"
+                        value={objectValue}
+                        onChange={(e) => setObjectValue(e.target.value)}
+                        placeholder={
+                          type === "domain" ? "example.com" :
+                          type === "ip" ? "8.8.8.8" :
+                          type === "autnum" ? "AS15169" :
+                          "HANDLE"
+                        }
+                        disabled={result !== null}
+                        required
+                        className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
+                      />
+                    </div>
+                    {error && (
+                      <p className="mt-2 text-sm text-red-600">{error}</p>
+                    )}
+                  </div>
+
+                  {/* DKIM Selector for domain queries */}
                   {type === "domain" && (
-                    <Input
-                      label="DKIM Selector"
-                      placeholder="Optional (e.g., google)"
-                      value={dkimSelector}
-                      onValueChange={setDkimSelector}
-                      startContent={<Mail className="w-4 h-4 text-default-400" />}
-                      isDisabled={result !== null}
-                    />
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        DKIM Selector (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={dkimSelector}
+                        onChange={(e) => setDkimSelector(e.target.value)}
+                        placeholder="default"
+                        disabled={result !== null}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
+                      />
+                      <p className="mt-1 text-xs text-gray-500">
+                        For DKIM record validation
+                      </p>
+                    </div>
                   )}
 
-                  <div className="flex justify-center py-2">
-                    <HCaptcha
-                      key={captchaKey}
-                      sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY}
-                      onVerify={(token) => setCaptchaToken(token)}
-                      onExpire={() => setCaptchaToken("")}
-                      onError={() => setCaptchaToken("")}
-                      ref={captchaRef}
-                      theme={isDarkMode ? "dark" : "light"}
-                    />
+                  {/* Captcha */}
+                  {!result && process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY && (
+                    <div className="flex justify-center">
+                      <HCaptcha
+                        key={captchaKey}
+                        ref={captchaRef}
+                        sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY}
+                        onVerify={handleCaptchaVerify}
+                        onExpire={handleCaptchaExpire}
+                        onError={handleCaptchaError}
+                        theme="light"
+                      />
+                    </div>
+                  )}
+
+                  {/* Development Notice */}
+                  {!result && !process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY && (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
+                      <p className="text-yellow-800 text-sm text-center">
+                        ⚠️ CAPTCHA disabled for development
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Submit/Reset Buttons */}
+                  <div className="flex gap-3">
+                    {!result ? (
+                      <button
+                        type="submit"
+                        disabled={isLoading || (process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY && !captchaToken)}
+                        className="flex-1 inline-flex justify-center items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        {isLoading ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            Looking up...
+                          </>
+                        ) : (
+                          <>
+                            <Search className="w-4 h-4" />
+                            Lookup
+                          </>
+                        )}
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleReset}
+                        disabled={isResetting}
+                        className="flex-1 inline-flex justify-center items-center gap-2 px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-md hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        {isResetting ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            Resetting...
+                          </>
+                        ) : (
+                          "New Query"
+                        )}
+                      </button>
+                    )}
                   </div>
-
-                  {!result ? (
-                    <Button
-                      type="submit"
-                      color="primary"
-                      variant="shadow"
-                      className="w-full"
-                      isLoading={isLoading}
-                      isDisabled={!captchaToken || !objectValue}
-                      startContent={!isLoading && <Search className="w-4 h-4" />}
-                    >
-                      {isLoading ? "Analyzing..." : "Lookup RDAP Data"}
-                    </Button>
-                  ) : (
-                    <Button
-                      color="secondary"
-                      variant="flat"
-                      className="w-full"
-                      onPress={resetForm}
-                      isLoading={isResetting}
-                      startContent={!isResetting && <Search className="w-4 h-4" />}
-                    >
-                      New Query
-                    </Button>
-                  )}
                 </form>
-
-                {error && (
-                  <Card className="mt-4 bg-danger-50 dark:bg-danger-100/10">
-                    <CardBody>
-                      <div className="flex gap-2 items-center">
-                        <AlertCircle className="w-4 h-4 text-danger" />
-                        <p className="text-sm text-danger">{error}</p>
-                      </div>
-                    </CardBody>
-                  </Card>
-                )}
-              </CardBody>
-            </Card>
-
-            {/* Info Card */}
-            {!result && (
-              <Card className="mt-4">
-                <CardBody>
-                  <div className="space-y-3">
-                    <div className="flex gap-2">
-                      <Info className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium">What is RDAP?</p>
-                        <p className="text-xs text-default-500 mt-1">
-                          RDAP (Registration Data Access Protocol) is the modern replacement for WHOIS, 
-                          providing structured, standardized domain registration data with better privacy controls.
-                        </p>
-                      </div>
-                    </div>
-                    <Divider />
-                    <div className="space-y-1">
-                      <p className="text-xs text-default-500">✓ Structured JSON responses</p>
-                      <p className="text-xs text-default-500">✓ Internationalization support</p>
-                      <p className="text-xs text-default-500">✓ Built-in access controls</p>
-                      <p className="text-xs text-default-500">✓ RESTful API design</p>
-                    </div>
-                  </div>
-                </CardBody>
-              </Card>
-            )}
+              </div>
+            </div>
           </div>
 
-          {/* Main Content Area */}
-          <div className="lg:col-span-8">
-            {result ? (
-              <div className="space-y-6">
-                {/* Quick Stats */}
-                {renderQuickStats()}
-
-                {/* Tabbed Content */}
-                <Card>
-                  <CardBody className="p-0">
-                    <Tabs 
-                      aria-label="RDAP Data" 
-                      color="primary"
-                      variant="underlined"
-                      selectedKey={activeTab}
-                      onSelectionChange={setActiveTab}
-                      classNames={{
-                        tabList: "gap-6 w-full relative rounded-none p-4 border-b border-divider",
-                        cursor: "w-full bg-primary",
-                        tab: "max-w-fit px-4 h-12",
-                        tabContent: "group-data-[selected=true]:text-primary"
-                      }}
-                    >
-                      <Tab
-                        key="overview"
-                        title={
-                          <div className="flex items-center gap-2">
-                            <Globe className="w-4 h-4" />
-                            <span>Overview</span>
-                          </div>
-                        }
-                      >
-                        <div className="p-4">
-                          {renderOverviewTab()}
-                        </div>
-                      </Tab>
-                      <Tab
-                        key="security"
-                        title={
-                          <div className="flex items-center gap-2">
-                            <Shield className="w-4 h-4" />
-                            <span>Security</span>
-                          </div>
-                        }
-                      >
-                        <div className="p-4">
-                          {renderSecurityTab()}
-                        </div>
-                      </Tab>
-                      <Tab
-                        key="contacts"
-                        title={
-                          <div className="flex items-center gap-2">
-                            <User className="w-4 h-4" />
-                            <span>Contacts</span>
-                          </div>
-                        }
-                      >
-                        <div className="p-4">
-                          {renderContactsTab()}
-                        </div>
-                      </Tab>
-                      <Tab
-                        key="raw"
-                        title={
-                          <div className="flex items-center gap-2">
-                            <Database className="w-4 h-4" />
-                            <span>Raw Data</span>
-                          </div>
-                        }
-                      >
-                        <div className="p-4">
-                          {renderRawDataTab()}
-                        </div>
-                      </Tab>
-                    </Tabs>
-                  </CardBody>
-                </Card>
-              </div>
-            ) : (
-              /* Welcome Screen */
-              <div className="flex flex-col items-center justify-center min-h-[500px] text-center">
-                <div className="bg-primary/10 p-6 rounded-full mb-6">
-                  <Search className="w-12 h-12 text-primary" />
+          {/* Results - Right Column */}
+          <div className="lg:col-span-8 order-1 lg:order-2">
+            {!result && !isLoading && (
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
+                <div className="mx-auto w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                  <Search className="w-12 h-12 text-blue-600" />
                 </div>
-                <h2 className="text-2xl font-bold mb-2">Ready to Query</h2>
-                <p className="text-default-500 max-w-md mb-6">
-                  Enter a domain, IP address, or ASN to get comprehensive RDAP information 
-                  including registration details, security status, and technical data.
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  Ready to lookup RDAP data
+                </h3>
+                <p className="text-gray-500 mb-6">
+                  Enter a domain, IP address, ASN, or entity handle to get started with your RDAP query.
                 </p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <Card className="bg-default-50 dark:bg-default-100/10">
-                    <CardBody className="p-4 text-center">
-                      <Globe className="w-6 h-6 text-primary mx-auto mb-2" />
-                      <p className="text-xs font-medium">Domain Lookup</p>
-                    </CardBody>
-                  </Card>
-                  <Card className="bg-default-50 dark:bg-default-100/10">
-                    <CardBody className="p-4 text-center">
-                      <Shield className="w-6 h-6 text-success mx-auto mb-2" />
-                      <p className="text-xs font-medium">Security Check</p>
-                    </CardBody>
-                  </Card>
-                  <Card className="bg-default-50 dark:bg-default-100/10">
-                    <CardBody className="p-4 text-center">
-                      <Server className="w-6 h-6 text-warning mx-auto mb-2" />
-                      <p className="text-xs font-medium">DNS Analysis</p>
-                    </CardBody>
-                  </Card>
-                  <Card className="bg-default-50 dark:bg-default-100/10">
-                    <CardBody className="p-4 text-center">
-                      <Database className="w-6 h-6 text-secondary mx-auto mb-2" />
-                      <p className="text-xs font-medium">Raw Data</p>
-                    </CardBody>
-                  </Card>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                  <div className="text-center">
+                    <Globe className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+                    <p className="font-medium text-gray-900">Domains</p>
+                    <p className="text-gray-500">google.com</p>
+                  </div>
+                  <div className="text-center">
+                    <Network className="w-8 h-8 text-green-500 mx-auto mb-2" />
+                    <p className="font-medium text-gray-900">IP Addresses</p>
+                    <p className="text-gray-500">8.8.8.8</p>
+                  </div>
+                  <div className="text-center">
+                    <Database className="w-8 h-8 text-purple-500 mx-auto mb-2" />
+                    <p className="font-medium text-gray-900">ASN</p>
+                    <p className="text-gray-500">AS15169</p>
+                  </div>
+                  <div className="text-center">
+                    <Key className="w-8 h-8 text-orange-500 mx-auto mb-2" />
+                    <p className="font-medium text-gray-900">Entities</p>
+                    <p className="text-gray-500">HANDLE</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {result && (
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                {/* Results Header */}
+                <div className="px-6 py-4 border-b border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5 text-green-500" />
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        RDAP Results
+                      </h3>
+                    </div>
+                    <button
+                      onClick={() => copyToClipboard(formatJsonDisplay(result), 'full')}
+                      className="inline-flex items-center gap-2 px-3 py-1 text-sm text-gray-600 hover:text-gray-900"
+                    >
+                      {copiedField === 'full' ? (
+                        <>
+                          <CheckCircle className="w-4 h-4" />
+                          Copied!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-4 h-4" />
+                          Copy JSON
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Tabs */}
+                <div className="border-b border-gray-200">
+                  <nav className="flex space-x-8 px-6">
+                    {['overview', 'raw'].map((tab) => (
+                      <button
+                        key={tab}
+                        onClick={() => setActiveTab(tab)}
+                        className={`py-4 px-1 border-b-2 font-medium text-sm capitalize ${
+                          activeTab === tab
+                            ? 'border-blue-500 text-blue-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        }`}
+                      >
+                        {tab}
+                      </button>
+                    ))}
+                  </nav>
+                </div>
+
+                {/* Tab Content */}
+                <div className="p-6">
+                  {activeTab === 'overview' && (
+                    <div className="space-y-6">
+                      {/* Basic Info */}
+                      {result.rdap && (
+                        <div>
+                          <h4 className="text-lg font-medium text-gray-900 mb-3">
+                            Basic Information
+                          </h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {result.rdap.objectClassName && (
+                              <div>
+                                <span className="text-sm font-medium text-gray-500">Object Type:</span>
+                                <p className="text-gray-900">{result.rdap.objectClassName}</p>
+                              </div>
+                            )}
+                            {result.rdap.handle && (
+                              <div>
+                                <span className="text-sm font-medium text-gray-500">Handle:</span>
+                                <p className="text-gray-900">{result.rdap.handle}</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Security Info */}
+                      {(result.dnssec || result.ssl || result.spf || result.dmarc || result.dkim) && (
+                        <div>
+                          <h4 className="text-lg font-medium text-gray-900 mb-3">
+                            Security Analysis
+                          </h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {result.dnssec && (
+                              <div className="flex items-center gap-2">
+                                <Shield className={`w-4 h-4 ${result.dnssec.enabled ? 'text-green-500' : 'text-red-500'}`} />
+                                <span className="text-sm text-gray-900">
+                                  DNSSEC: {result.dnssec.enabled ? 'Enabled' : 'Disabled'}
+                                </span>
+                              </div>
+                            )}
+                            {result.ssl && (
+                              <div className="flex items-center gap-2">
+                                <Lock className={`w-4 h-4 ${result.ssl.valid ? 'text-green-500' : 'text-red-500'}`} />
+                                <span className="text-sm text-gray-900">
+                                  SSL: {result.ssl.valid ? 'Valid' : 'Invalid'}
+                                </span>
+                              </div>
+                            )}
+                            {result.spf && (
+                              <div className="flex items-center gap-2">
+                                <Mail className={`w-4 h-4 ${result.spf.valid ? 'text-green-500' : 'text-red-500'}`} />
+                                <span className="text-sm text-gray-900">
+                                  SPF: {result.spf.valid ? 'Valid' : 'Invalid'}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {activeTab === 'raw' && (
+                    <div>
+                      <pre className="bg-gray-100 rounded-md p-4 text-sm overflow-auto max-h-96 text-gray-900">
+                        {formatJsonDisplay(result)}
+                      </pre>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

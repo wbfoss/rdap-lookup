@@ -1,133 +1,225 @@
-![GitHub stars](https://img.shields.io/github/stars/alokemajumder/rdap-lookup?style=social)
-![GitHub forks](https://img.shields.io/github/forks/alokemajumder/rdap-lookup?style=social)
-![GitHub issues](https://img.shields.io/github/issues/alokemajumder/rdap-lookup)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/alokemajumder/rdap-lookup)
-![GitHub](https://img.shields.io/github/license/alokemajumder/rdap-lookup)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/alokemajumder/rdap-lookup)
-![GitHub contributors](https://img.shields.io/github/contributors/alokemajumder/rdap-lookup)
-![GitHub last commit](https://img.shields.io/github/last-commit/alokemajumder/rdap-lookup)
-![GitHub top language](https://img.shields.io/github/languages/top/alokemajumder/rdap-lookup)
-![Dependencies](https://img.shields.io/librariesio/github/alokemajumder/rdap-lookup)
-![Code size](https://img.shields.io/github/languages/code-size/alokemajumder/rdap-lookup)
+![GitHub stars](https://img.shields.io/github/stars/gensecaihq/rdap-lookup?style=social)
+![GitHub forks](https://img.shields.io/github/forks/gensecaihq/rdap-lookup?style=social)
+![GitHub issues](https://img.shields.io/github/issues/gensecaihq/rdap-lookup)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/gensecaihq/rdap-lookup)
+![GitHub](https://img.shields.io/github/license/gensecaihq/rdap-lookup)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/gensecaihq/rdap-lookup)
+![GitHub contributors](https://img.shields.io/github/contributors/gensecaihq/rdap-lookup)
+![GitHub last commit](https://img.shields.io/github/last-commit/gensecaihq/rdap-lookup)
+![GitHub top language](https://img.shields.io/github/languages/top/gensecaihq/rdap-lookup)
+![Code size](https://img.shields.io/github/languages/code-size/gensecaihq/rdap-lookup)
 ![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.png?v=103)
 
-# RDAP Lookup & Security Tool (Next.js App Router + shadcn/ui)
+# 🔍 RDAP Lookup - Modern Domain Intelligence & Security Platform
 
-A production-level **RDAP Lookup** and security tool built using **Next.js App Router**, **Tailwind CSS**, and **shadcn/ui** components.
-It queries [rdap.org](https://rdap.org) for the given object and, if that fails (for domains), automatically falls back to [rdap.iana.org](https://rdap.iana.org). This application enforces **rate limiting**, returns **user-friendly** errors, and displays **structured** RDAP data by default, with a toggle to show raw JSON.
+A comprehensive **RDAP (Registration Data Access Protocol)** lookup tool and cybersecurity platform built with **Next.js 14**, **React 18**, and **Tailwind CSS**. This modern, open-source application provides domain intelligence, network analysis, and security research capabilities for cybersecurity professionals, IT administrators, and security researchers.
 
-This tool also includes several security-related checks:
-*   **Email Security:** Checks for SPF and DMARC records for domains.
-*   **DKIM Record Lookup:** Allows for checking a specific DKIM selector for a domain.
-*   **SSL/TLS Certificate Checker:** Fetches and displays SSL certificate information for a domain.
-*   **RBL/DNSBL Checker:** Checks an IP address against a list of Real-time Blackhole Lists.
+🌐 **Live Demo:** [https://rdap.vercel.app](https://rdap.vercel.app)
 
 ----------
 
-## Why RDAP Instead of WHOIS?
+## 🚀 Why RDAP Over WHOIS?
 
-**RDAP (Registration Data Access Protocol)** is the modern, standardized replacement for the legacy WHOIS protocol. It provides:
+**RDAP** is the modern, standardized replacement for the legacy WHOIS protocol, offering significant advantages:
 
-1.  **Structured Responses**: JSON output that is easier to parse.
-2.  **Internationalization**: Better support for IDNs and non-ASCII data.
-3.  **Security & Access Control**: Designed to meet modern privacy requirements.
-4.  **RESTful / Web-Friendly**: Utilizes HTTPS endpoints, making integration simpler than raw WHOIS text.
+### ✅ **Technical Superiority**
+- **🔧 Structured JSON Data**: Machine-readable responses vs. unstructured text
+- **🌍 Internationalization**: Native support for IDNs and Unicode characters
+- **🔒 Security First**: HTTPS encryption and authentication support
+- **⚡ RESTful API**: Standard HTTP methods and status codes
+- **🎯 Standardized**: Consistent format across all registries and registrars
 
-Overall, RDAP is **more robust and future-proof** for domain/IP registration data than WHOIS.
-
-----------
-
-## Features
-
--   **Next.js 13 App Router**
--   **shadcn/ui** for modern UI components
--   **Tailwind CSS** for styling
--   **Rate limiting**: Configurable via environment variables.
--   **Fallback** for domains**: `rdap.iana.org/domain/<domain>` if primary lookup fails
--   **Structured** result display + **raw JSON** toggle button
--   **User-friendly** error messages
--   **Email Security Checks:** SPF and DMARC record lookups.
--   **DKIM Record Lookup:** Optional DKIM selector for domain lookups.
--   **SSL/TLS Certificate Checker:** Displays SSL certificate details.
--   **RBL/DNSBL Checker:** Checks IP addresses against Spamhaus, Barracuda, and SpamCop.
+### ✅ **Modern Features**
+- **🛡️ Privacy Compliance**: Built-in GDPR and privacy regulation support
+- **📊 Structured Responses**: Consistent JSON format eliminates parsing issues
+- **🔍 Enhanced Search**: Better support for IP ranges, ASNs, and entities
+- **⚙️ Extensible**: Designed for future enhancements and integrations
 
 ----------
 
-## Getting Started
+## 🎯 Core Features
 
-1.  **Clone or Download** this repository:
-    ```
-    git clone https://github.com/wbfoss/rdap-lookup.git
-    cd rdap-lookup
-    ```
-2.  **Install Dependencies**:
-    ```
-    npm install
-    ```
-    or
-    ```
-    yarn
-    ```
-3.  **Environment Variables**:
-    Create a `.env.local` file in the root of the project and add the following environment variables:
-    ```
-    # hCaptcha secret key
-    HCAPTCHA_SECRET_KEY=your_hcaptcha_secret_key
+### 🔍 **RDAP Lookup Capabilities**
+- **Domain Lookup**: Complete registration data, nameservers, contacts, and dates
+- **IP Address Lookup**: Network allocation, organization details, and CIDR blocks
+- **ASN Lookup**: Autonomous System information and routing data
+- **Entity Lookup**: Registrar and contact information
 
-    # Optional: Rate limiting configuration
-    RDAP_LOOKUP_MAX_QUERIES=100
-    RDAP_LOOKUP_RATE_LIMIT_SECONDS=15
-    ```
-4.  **Run in Development**:
-    ```
-    npm run dev
-    ```
-    By default, the app runs at http://localhost:3000.
+### 🛡️ **Security Analysis**
+- **SSL/TLS Certificate Analysis**: Certificate validation, chain verification, and security assessment
+- **Email Security**: SPF, DMARC, and DKIM record validation and analysis
+- **DNSSEC Validation**: Domain security extension verification
+- **Blacklist Checking**: Multi-provider RBL/DNSBL verification
 
-5.  **Build for Production**:
-    ```
-    npm run build
-    npm run start
-    ```
-    By default, runs at http://localhost:3000.
+### 🎨 **User Experience**
+- **Clean, Minimalistic UI**: Professional interface focused on usability
+- **Responsive Design**: Works seamlessly on desktop, tablet, and mobile
+- **Real-time Results**: Fast, comprehensive analysis with structured display
+- **Export Capabilities**: Copy results as JSON for integration
+
+### 🔧 **Developer Features**
+- **Rate Limiting**: Configurable limits to prevent abuse
+- **Error Handling**: User-friendly error messages and fallback mechanisms
+- **API Ready**: Built for future API exposure and integrations
+- **Open Source**: Fully transparent and community-driven development
 
 ----------
 
-## Usage
+## 🛠️ Technology Stack
 
-1.  **Select** the RDAP type (domain, IP, ASN, or entity).
-2.  **Enter** the object (e.g., `google.com` or `8.8.8.8`).
-3.  If you selected "domain", you can optionally enter a **DKIM selector**.
-4.  **Click** **Lookup**.
-    -   If **rdap.org** fails and it's a **domain**, fallback queries **rdap.iana.org/domain/<domain>**.
-5.  By default, you see a **structured** representation of key RDAP fields and security information.
-6.  Click **Show JSON** to toggle the raw JSON output.
-
-### Rate Limiting
-
--   The number of queries per IP and the time between queries can be configured using the `RDAP_LOOKUP_MAX_QUERIES` and `RDAP_LOOKUP_RATE_LIMIT_SECONDS` environment variables.
--   Exceeding these results in a **429** (Too Many Requests) error.
+- **⚡ Next.js 14**: React framework with App Router for optimal performance
+- **⚛️ React 18**: Modern React with latest features and optimizations
+- **🎨 Tailwind CSS**: Utility-first CSS framework for rapid UI development
+- **🔧 TypeScript Ready**: Prepared for type-safe development
+- **☁️ Vercel Deployment**: Optimized for edge computing and global performance
+- **🔒 Security Focused**: Built-in security headers and best practices
 
 ----------
 
-## Contributing
+## 🚀 Quick Start
 
-1.  **Fork or Clone** the repository.
-2.  **Create** a new feature branch (e.g., `feature/improve-structured-output`).
-3.  **Commit and Push** your changes.
-4.  **Open a Pull Request** explaining what you’ve changed and why.
+### Prerequisites
+- Node.js 18+ and npm/yarn
+- Optional: hCaptcha account for bot protection
 
-We welcome enhancements for deeper RDAP parsing, improved UI, or integration with a persistent rate-limiting store (e.g., Redis).
+### Installation
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/gensecaihq/rdap-lookup.git
+   cd rdap-lookup
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+
+3. **Environment setup** (optional):
+   Create `.env.local` for advanced features:
+   ```env
+   # hCaptcha (optional - for bot protection)
+   HCAPTCHA_SECRET_KEY=your_hcaptcha_secret_key
+   NEXT_PUBLIC_HCAPTCHA_SITE_KEY=your_hcaptcha_site_key
+
+   # Rate limiting (optional)
+   RDAP_LOOKUP_MAX_QUERIES=100
+   RDAP_LOOKUP_RATE_LIMIT_SECONDS=15
+   ```
+
+4. **Run development server**:
+   ```bash
+   npm run dev
+   ```
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+5. **Build for production**:
+   ```bash
+   npm run build
+   npm run start
+   ```
 
 ----------
 
-## Live Website
+## 📖 Usage Guide
 
-[RDAP Lookup](https://rdap.vercel.app)
+### Basic RDAP Lookup
+1. **Select Query Type**: Choose from Domain, IP, ASN, or Entity
+2. **Enter Target**: Input domain name (e.g., `google.com`), IP address (e.g., `8.8.8.8`), or ASN (e.g., `AS15169`)
+3. **Optional Settings**: For domains, specify DKIM selector if needed
+4. **Execute Lookup**: Click "Lookup" to retrieve comprehensive RDAP data
+5. **Analyze Results**: Review structured data in the Overview tab or raw JSON in the Raw tab
 
-## License
+### Advanced Features
+- **Copy Results**: Export complete analysis as JSON for further processing
+- **Security Analysis**: Automatic SSL, DNS, and email security checks for domains
+- **Fallback Mechanisms**: Automatic failover to IANA RDAP service for reliability
+- **Rate Limiting**: Built-in protection against abuse while allowing legitimate research
 
-This project is licensed under the [MIT License](LICENSE).
+----------
 
-You’re free to fork, modify, and redistribute under the terms of the MIT license.
-We appreciate contributions and feedback!
+## 🔮 Upcoming Security Tools
+
+We're actively developing advanced cybersecurity tools (see `/tools` page):
+
+### 🎯 **Phase 1: Core Security Intelligence**
+- **Domain Age Calculator** - Identify newly registered domains
+- **Typosquatting Detection** - Find domain variations and suspicious registrations
+- **Homograph Attack Detection** - Identify Unicode character attacks
+- **Domain Reputation Scoring** - Aggregate risk assessment
+- **Certificate Transparency Monitoring** - Track certificate issuance patterns
+- **Advanced Email Security Analysis** - Comprehensive email authentication assessment
+
+### 🔍 **Future Phases**
+- Threat intelligence integration
+- Passive DNS analysis
+- Network topology mapping
+- Machine learning threat detection
+- Enterprise monitoring and alerting
+
+----------
+
+## 🤝 Contributing
+
+We welcome contributions from the cybersecurity and development community!
+
+### How to Contribute
+1. **Fork** the repository
+2. **Create** a feature branch: `git checkout -b feature/amazing-feature`
+3. **Commit** your changes: `git commit -m 'Add amazing feature'`
+4. **Push** to branch: `git push origin feature/amazing-feature`
+5. **Open** a Pull Request
+
+### Development Areas
+- 🔧 **Core Features**: RDAP parsing improvements and new query types
+- 🛡️ **Security Tools**: Implementation of planned cybersecurity features
+- 🎨 **UI/UX**: Interface improvements and user experience enhancements
+- 📚 **Documentation**: Guides, tutorials, and API documentation
+- 🧪 **Testing**: Test coverage and quality assurance
+
+----------
+
+## 📊 Project Stats
+
+- **🎯 Purpose**: Domain intelligence and cybersecurity research
+- **👥 Target Users**: Security researchers, IT professionals, cybersecurity analysts
+- **📈 Roadmap**: 68 planned security tools across 4 development phases
+- **🔄 Updates**: Active development with regular feature releases
+- **🌍 Accessibility**: Free, open-source, and globally available
+
+----------
+
+## 📝 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+### Open Source Commitment
+- ✅ **Free Forever**: Core functionality will always be free
+- ✅ **Community Driven**: Development guided by user feedback
+- ✅ **Transparent**: All code and development processes are public
+- ✅ **Secure**: Regular security audits and updates
+
+----------
+
+## 🙏 Acknowledgments
+
+Special thanks to:
+- **IANA** for RDAP bootstrap data and standards
+- **IETF** for RDAP protocol development (RFC 7483)
+- **Vercel** for hosting and deployment platform
+- **Open Source Community** for contributions and feedback
+
+----------
+
+## 📞 Support & Community
+
+- **🐛 Issues**: [GitHub Issues](https://github.com/gensecaihq/rdap-lookup/issues)
+- **💬 Discussions**: [GitHub Discussions](https://github.com/gensecaihq/rdap-lookup/discussions)
+- **📧 Security**: Report security issues responsibly via GitHub Security tab
+- **⭐ Star**: Show support by starring the repository
+
+---
+
+**Built with ❤️ by the cybersecurity community for the cybersecurity community.**

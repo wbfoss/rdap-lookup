@@ -1,13 +1,13 @@
-![GitHub stars](https://img.shields.io/github/stars/gensecaihq/rdap-lookup?style=social)
-![GitHub forks](https://img.shields.io/github/forks/gensecaihq/rdap-lookup?style=social)
-![GitHub issues](https://img.shields.io/github/issues/gensecaihq/rdap-lookup)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/gensecaihq/rdap-lookup)
-![GitHub](https://img.shields.io/github/license/gensecaihq/rdap-lookup)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/gensecaihq/rdap-lookup)
-![GitHub contributors](https://img.shields.io/github/contributors/gensecaihq/rdap-lookup)
-![GitHub last commit](https://img.shields.io/github/last-commit/gensecaihq/rdap-lookup)
-![GitHub top language](https://img.shields.io/github/languages/top/gensecaihq/rdap-lookup)
-![Code size](https://img.shields.io/github/languages/code-size/gensecaihq/rdap-lookup)
+![GitHub stars](https://img.shields.io/github/stars/wbfoss/rdap-lookup?style=social)
+![GitHub forks](https://img.shields.io/github/forks/wbfoss/rdap-lookup?style=social)
+![GitHub issues](https://img.shields.io/github/issues/wbfoss/rdap-lookup)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/wbfoss/rdap-lookup)
+![GitHub](https://img.shields.io/github/license/wbfoss/rdap-lookup)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/wbfoss/rdap-lookup)
+![GitHub contributors](https://img.shields.io/github/contributors/wbfoss/rdap-lookup)
+![GitHub last commit](https://img.shields.io/github/last-commit/wbfoss/rdap-lookup)
+![GitHub top language](https://img.shields.io/github/languages/top/wbfoss/rdap-lookup)
+![Code size](https://img.shields.io/github/languages/code-size/wbfoss/rdap-lookup)
 ![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.png?v=103)
 
 # 🔍 RDAP Lookup - Modern Domain Intelligence & Security Platform
@@ -90,7 +90,7 @@ A comprehensive **RDAP (Registration Data Access Protocol)** lookup tool and cyb
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/gensecaihq/rdap-lookup.git
+   git clone https://github.com/wbfoss/rdap-lookup.git
    cd rdap-lookup
    ```
 
@@ -239,8 +239,8 @@ Special thanks to:
 
 ## 📞 Support & Community
 
-- **🐛 Issues**: [GitHub Issues](https://github.com/gensecaihq/rdap-lookup/issues)
-- **💬 Discussions**: [GitHub Discussions](https://github.com/gensecaihq/rdap-lookup/discussions)
+- **🐛 Issues**: [GitHub Issues](https://github.com/wbfoss/rdap-lookup/issues)
+- **💬 Discussions**: [GitHub Discussions](https://github.com/wbfoss/rdap-lookup/discussions)
 - **📧 Security**: Report security issues responsibly via GitHub Security tab
 - **⭐ Star**: Show support by starring the repository
 
